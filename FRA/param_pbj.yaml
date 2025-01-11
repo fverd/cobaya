@@ -1,0 +1,25 @@
+input_cosmology: # to initialise base quantities
+  h: 0.695
+  Obh2: 0.02224
+  Och2: 0.115422125
+  ns: 0.9632
+  As: 2.20192887130619e-9
+  tau: 0.09
+  Tcmb: 2.7255
+  z: 1.
+  inputfile: null
+  Mnu: 0.
+
+theory:
+  linear: bacco # options: camb, bacco
+  IRresum: True
+  IRresum_kind: EH # options EH, DST
+  do_redshift_rescaling: True
+
+AP:
+  do_AP: False
+  AP_as_nuisance: False
+  fiducial_cosmology:
+    h: 0.695
+    Obh2: 0.02224
+    Och2: 0.115422125

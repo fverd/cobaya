@@ -1,3 +1,21 @@
 --index-url https://pypi.python.org/simple/
 
 -e .
+
+
+[evaluate] Reference point:
+   logA = 3.04997
+   ns = 0.96159
+   theta_MC_100 = 1.04066
+   ombh2 = 0.0223324
+   omch2 = 0.118474
+   tau = 0.0608386
+   A_planck = 0.999919
+   amp_143 = 9.691
+   amp_217 = 19.8623
+   amp_143x217 = 9.27087
+   n_143 = 0.920849
+   n_217 = 1.32035
+   n_143x217 = 0.937126
+   calTE = 1.00719
+   calEE = 0.997054

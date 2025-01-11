@@ -409,6 +409,7 @@ class SampleCollection(BaseCollection):
         elif isinstance(logpost, float) or logpost is None:
             try:
                 return_logpost = LogPosterior(
+                    logpost=logpost,
                     logpriors=logpriors,  # type: ignore
                     loglikes=loglikes,  # type: ignore
                     derived=derived,  # type: ignore
