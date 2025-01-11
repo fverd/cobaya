@@ -1,3 +1,9 @@
+# FRA
+chains/
+pbj-bisp_redshift_space/
+Slurm-output/
+FRA/Quijdata/
+
 # Backups
 *~
 \#*
