@@ -1,0 +1,6 @@
+# FRA
+# Default arguments for the Nautilus sampler
+n_live: 1000
+n_eff: 10000
+poolN: 64
+logzero: -1e30
