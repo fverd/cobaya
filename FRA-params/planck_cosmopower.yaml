@@ -67,7 +67,7 @@ params:
 
 sampler:
   nautilus:
-    poolN: 40
+    poolN: 72
 
 
-output: chains/naut_planck_cp/withh
+output: chains/planck_cosmopower/planck

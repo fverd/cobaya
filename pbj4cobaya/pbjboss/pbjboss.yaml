@@ -1,0 +1,10 @@
+pbj_path: 
+data_path:
+pbj_Dict:
+k_max: 
+renames:
+  omega_b: Obh2
+  omega_cdm: Och2
+  A_s: As
+  n_s: ns
+  tau_reio: tau
