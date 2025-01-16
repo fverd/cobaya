@@ -1,0 +1,33 @@
+# Compiled source
+*.pyc
+
+# Logs and temporaries
+*~
+
+# Folders
+.ipynb_checkpoints/
+chains/
+data/
+logs/
+plots/
+stats/
+tau/
+theory/
+ConvolutionFixedTest/
+
+# Files
+*.pdf
+*.png
+*.dat
+*.txt
+*.obj
+plot_*.py
+param*.ini
+param*.yaml
+run_*.py
+*.jl
+
+# Misc
+environment.yml
+priors.yaml
+param_power_window_zspace.yaml

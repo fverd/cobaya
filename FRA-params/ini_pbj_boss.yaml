@@ -12,13 +12,19 @@ likelihood:
 
       redshift_bins: [0.38, 0.38, 0.61, 0.61]
 
-      data_folder: pbj4cobaya/pbjboss/data/boss/
+      data_folder: /home/fverdian/cobaya/pbj4cobaya/pbjboss/data/boss/
       data_files: [pk_boss_ngc_z1_fkp.txt, pk_boss_sgc_z1_fkp.txt, pk_boss_ngc_z3_fkp.txt, pk_boss_sgc_z3_fkp.txt]
       covariance:
         type: covariance # options: covariance, variance
         file: [C_P0P2_patchy_ngc_z1.txt, C_P0P2_patchy_sgc_z1.txt, C_P0P2_patchy_ngc_z3.txt, C_P0P2_patchy_sgc_z3.txt]
 
       SN: [3333.3, 3333.3, 3333.3, 3333.3]
+      AP:
+        do_AP: True
+        fiducial_cosmology:
+          h: 0.676
+          Obh2: 0.022
+          Och2: 0.1190
 
       likelihood:
         observables: ['P0', 'P2'] # options: Pk, Bk, P0, P2, P4, B0, B2, B4
@@ -56,9 +62,9 @@ likelihood:
         do_redshift_rescaling: False
 
       input_cosmology: # to initialise base quantities
-        h: 0.6711
-        Obh2: 0.0220684
-        Och2: 0.120926
+        h: 0.676
+        Obh2: 0.022
+        Och2: 0.1190
         ns: 0.9624
         As: 2.13e-09
         As_Asfid: 1.0
@@ -78,12 +84,16 @@ params:
 
   h:
     prior:
-      min: 0.5
-      max: 0.9
+      min: 0.6
+      max: 0.85
     latex: h
-  omega_b: 
-    value: 'lambda h: 0.049*h*h'
-    latex: \Omega_\mathrm{n} h^2
+
+  omega_b:
+    prior:
+      dist: norm
+      loc: 0.02268
+      scale: 0.00038
+    latex: \Omega_\mathrm{b} h^2
 
   omega_cdm:
     prior:
@@ -145,7 +155,7 @@ params:
 sampler:
   # evaluate:
   nautilus:
-    poolN: 1
+    poolN: 72
 
 
-output: chains/pbjboss/boss
+output: chains/pbjboss/test

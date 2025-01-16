@@ -1,0 +1,104 @@
+b1:
+  type: varied
+  init_value: 2.71
+  prior: uniform
+  prior_params:
+    min: 0.9
+    max: 3.5
+  latex: b_1
+
+b2:
+  type: varied
+  init_value: 0.7
+  prior: uniform
+  prior_params:
+    min: -4.
+    max: 4.
+  latex: b_2
+  
+bG2:
+  type: derived
+  function: '0.524 - 0.547*b1 + 0.046*b1*b1'
+  parameters: [b1]
+  latex: b_{\mathcal G_2}
+
+bG3:
+  type: varied
+  init_value: 1.2
+  prior: uniform
+  prior_params:
+    min: -10.
+    max: 10.
+  latex: b_{\Gamma_3}
+
+c0:
+  type: varied
+  init_value: 6.5
+  prior: uniform
+  prior_params:
+    min: -100.
+    max: 100.
+  latex: \tilde c_0
+
+c2:
+  type: varied
+  init_value: 0.
+  prior: uniform
+  prior_params:
+    min: -500.
+    max: 500.
+  latex: \tilde c_2
+
+c4:
+  type: varied
+  init_value: 0.
+  prior: uniform
+  prior_params:
+    min: -500.
+    max: 500.
+  latex: \tilde c_4
+
+ck4:
+  type: varied
+  init_value: 0.
+  prior: uniform
+  prior_params:
+    min: -800.
+    max: 800.
+  latex: \tilde c_{\nabla^4\delta}
+
+aP:
+  type: varied
+  init_value: -0.27
+  prior: uniform
+  prior_params:
+    min: -1.
+    max: 3.
+  latex: \alpha_P
+
+e0k2:
+  type: varied
+  init_value: 0.
+  prior: uniform
+  prior_params:
+    min: -50.
+    max: 50.
+  latex: \epsilon_{0,k^2}
+
+e2k2:
+  type: varied
+  init_value: 0.
+  prior: uniform
+  prior_params:
+    min: -50.
+    max: 50.
+  latex: \epsilon_{2,k^2}
+
+h:
+  type: varied
+  init_value: 0.694
+  prior: uniform
+  prior_params:
+    min: 0.6
+    max: 0.8
+  latex: h

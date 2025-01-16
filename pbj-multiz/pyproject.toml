@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "pbjcosmo"
+version = "0.1.0"
+description = "Joint analysis of galaxy power spectrum and bispectrum"
+authors = ["Chiara Moretti <chiara.moretti1989@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.9.19"
+tensorflow = "2.14"
+numpy = "1.26"
+scipy = "1.13.1"
+pandas = "^2.2.1"
+fast-pt = "^3.1.1"
+emcee = "^3.1.4"
+camb = "^1.5.4"
+getdist = "^1.4.7"
+tqdm = "^4.65.0"
+PyYAML = "^6.0.1"
+nautilus-sampler = "^1.0.2"
+baccoemu = "^2.1.1"
+pocomc = "^1.0.2"
+ultranest = "^4.3.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

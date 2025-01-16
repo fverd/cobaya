@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-#SBATCH --job-name=bpbj
+#SBATCH --job-name=class
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=fverdian@sissa.it
 #
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=72
+#SBATCH --cpus-per-task=24
 
 #SBATCH --time=48:00:00  
 #
@@ -15,4 +15,4 @@
 export OMP_NUM_THREADS=$((${SLURM_CPUS_PER_TASK}/2))
 export RDMAV_FORK_SAFE=1
 
-cobaya-run FRA-params/ini_pbj_boss.yaml -f
+cobaya-run FRA-params/planck_class.yaml

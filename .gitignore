@@ -1,10 +1,9 @@
 # FRA
 chains/
 pbj-bisp_redshift_space/
-pbj-multiz/
 Slurm-output/
 FRA/Quijdata/
-
+files_chiara/
 # Backups
 *~
 \#*
