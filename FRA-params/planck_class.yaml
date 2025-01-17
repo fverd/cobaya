@@ -6,6 +6,8 @@ theory:
       N_ncdm: 1
       N_ur: 2.0328
     ignore_obsolete: True
+    params:
+      omega_cdm:
 
 likelihood:
   planck_2018_lowl.TT: null

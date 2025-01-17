@@ -82,6 +82,9 @@ class Pbj(PBJtheory, PBJtemplates, PBJlikelihood, PBJsampler):
         else:
             self.Dict["window"] = {"convolve": None}
 
+        if 'redshift_bins' in Dict:
+            self.z_bins = np.asarray(Dict['redshift_bins'])
+
         # inputcosmo
         self.Inputcosmo = Dict['input_cosmology']
         if self.Inputcosmo != None:
@@ -117,8 +120,6 @@ class Pbj(PBJtheory, PBJtemplates, PBJlikelihood, PBJsampler):
             self.kL = kL
             self.PL = PL
 
-            if 'redshift_bins' in Dict:
-                self.z_bins = np.asarray(Dict['redshift_bins'])
 
             self.Dz, _ = self.growth_factor(self.z)
             self.f  = self.growth_rate(self.z)
@@ -193,6 +194,7 @@ class Pbj(PBJtheory, PBJtemplates, PBJlikelihood, PBJsampler):
                 try:
                     self.FiducialCosmo = Dict['AP']['fiducial_cosmology']
                     if hasattr(self, 'z_bins'):
+                        print(self.z_bins,self.FiducialCosmo)
                         self._set_fiducials_for_AP(self.z_bins, self.FiducialCosmo)
                     else:
                         self._set_fiducials_for_AP(self.z, self.FiducialCosmo)

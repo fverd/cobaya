@@ -1,0 +1,20 @@
+﻿h	h
+omega_b	\Omega_\mathrm{b} h^2
+omega_cdm	\Omega_\mathrm{c} h^2
+logA	\log(10^{10} A_\mathrm{s})
+n_s	n_s
+b1_ngc_z1	b1\ ngc\ z1
+b1_sgc_z1	b1\ sgc\ z1
+b1_ngc_z3	b1\ ngc\ z3
+b1_sgc_z3	b1\ sgc\ z3
+b2_ngc_z1	b2\ ngc\ z1
+b2_sgc_z1	b2\ sgc\ z1
+b2_ngc_z3	b2\ ngc\ z3
+b2_sgc_z3	b2\ sgc\ z3
+bG2_ngc_z1	bG2\ ngc\ z1
+bG2_sgc_z1	bG2\ sgc\ z1
+bG2_ngc_z3	bG2\ ngc\ z3
+bG2_sgc_z3	bG2\ sgc\ z3
+A_s*	A_\mathrm{s}
+logprior__0*	\log\pi_\mathrm{0}
+loglike__pbjboss*	\log\mathcal{L}_\mathrm{pbjboss}

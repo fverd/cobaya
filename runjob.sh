@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-#SBATCH --job-name=class
+#SBATCH --job-name=boss_kJ
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=fverdian@sissa.it
 #
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=22
 
 #SBATCH --time=48:00:00  
 #
@@ -15,4 +15,4 @@
 export OMP_NUM_THREADS=$((${SLURM_CPUS_PER_TASK}/2))
 export RDMAV_FORK_SAFE=1
 
-cobaya-run FRA-params/planck_class.yaml
+cobaya-run FRA-params/fx_boss.yaml -f

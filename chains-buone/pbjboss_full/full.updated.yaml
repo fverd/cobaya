@@ -1,0 +1,303 @@
+theory: null
+likelihood:
+  pbjboss:
+    pbj_path: pbj-multiz/
+    data_path: null
+    pbj_Dict:
+      redshift_bins:
+      - 0.38
+      - 0.38
+      - 0.61
+      - 0.61
+      data_folder: /home/fverdian/cobaya/pbj4cobaya/pbjboss/data/boss/
+      data_files:
+      - pk_boss_ngc_z1_fkp.txt
+      - pk_boss_sgc_z1_fkp.txt
+      - pk_boss_ngc_z3_fkp.txt
+      - pk_boss_sgc_z3_fkp.txt
+      covariance:
+        type: covariance
+        file:
+        - C_P0P2_patchy_ngc_z1.txt
+        - C_P0P2_patchy_sgc_z1.txt
+        - C_P0P2_patchy_ngc_z3.txt
+        - C_P0P2_patchy_sgc_z3.txt
+      SN:
+      - 3333.3
+      - 3333.3
+      - 3333.3
+      - 3333.3
+      AP:
+        do_AP: true
+        fiducial_cosmology:
+          h: 0.676
+          Obh2: 0.022
+          Och2: 0.119
+      likelihood:
+        observables:
+        - P0
+        - P2
+        type: Gaussian
+        cosmology: varied
+        do_analytic_marg: true
+      marg_params:
+        bG3:
+          mean:
+          - 0.19928571
+          - 0.19928571
+          - 0.25952381
+          - 0.3197619
+          sigma:
+          - 1.0
+          - 1.0
+          - 1.0
+          - 1.0
+        c0:
+          mean:
+          - 0.0
+          - 0.0
+          - 0.0
+          - 0.0
+          sigma:
+          - 30.0
+          - 30.0
+          - 30.0
+          - 30.0
+        c2:
+          mean:
+          - 30.0
+          - 30.0
+          - 30.0
+          - 30.0
+          sigma:
+          - 30.0
+          - 30.0
+          - 30.0
+          - 30.0
+        aP:
+          mean:
+          - 0.0
+          - 0.0
+          - 0.0
+          - 0.0
+          sigma:
+          - 2.0
+          - 2.0
+          - 2.0
+          - 2.0
+        e0k2:
+          mean:
+          - 0.0
+          - 0.0
+          - 0.0
+          - 0.0
+          sigma:
+          - 2.0
+          - 2.0
+          - 2.0
+          - 2.0
+        e2k2:
+          mean:
+          - 0.0
+          - 0.0
+          - 0.0
+          - 0.0
+          sigma:
+          - 2.0
+          - 2.0
+          - 2.0
+          - 2.0
+      theory:
+        linear: bacco
+        IRresum: true
+        IRresum_kind: EH
+        do_redshift_rescaling: false
+      input_cosmology:
+        h: 0.676
+        Obh2: 0.022
+        Och2: 0.119
+        ns: 0.9624
+        As: 2.13e-09
+        As_Asfid: 1.0
+        tau: 0.0925
+        Tcmb: 2.725
+        Mnu: 0.0
+        z: 0.5
+      window:
+        convolve: null
+    k_max:
+    - 0.2
+    - 0.2
+    - 0.2
+    - 0.2
+    renames:
+      omega_b: Obh2
+      omega_cdm: Och2
+      A_s: As
+      n_s: ns
+      tau_reio: tau
+    type: []
+    speed: -1
+    stop_at_error: true
+    version: null
+    python_path: pbj4cobaya/
+    input_params:
+    - h
+    - omega_b
+    - omega_cdm
+    - A_s
+    - n_s
+    - Mnu
+    - b1
+    - b2
+    - bG2
+    - fx
+    - kJ0p5
+    - tau_reio
+    - z
+    - Tcmb
+    output_params: []
+params:
+  h:
+    prior:
+      min: 0.63
+      max: 0.75
+    latex: h
+  omega_b:
+    prior:
+      dist: norm
+      loc: 0.02268
+      scale: 0.00038
+    latex: \Omega_\mathrm{b} h^2
+    renames:
+    - Obh2
+  omega_cdm:
+    prior:
+      min: 0.08
+      max: 0.16
+    latex: \Omega_\mathrm{c} h^2
+    renames:
+    - Och2
+  logA:
+    prior:
+      min: 2.0
+      max: 3.5
+    latex: \log(10^{10} A_\mathrm{s})
+  A_s:
+    value: 'lambda logA: 1e-10*np.exp(logA)'
+    latex: A_\mathrm{s}
+    derived: true
+    renames:
+    - As
+  n_s:
+    prior:
+      dist: norm
+      loc: 0.9649
+      scale: 0.0042
+    latex: n_s
+    renames:
+    - ns
+  Mnu:
+    value: 0.06
+  b1_ngc_z1:
+    prior:
+      min: 1
+      max: 3
+    drop: true
+  b1_sgc_z1:
+    prior:
+      min: 1
+      max: 3
+    drop: true
+  b1_ngc_z3:
+    prior:
+      min: 1
+      max: 3
+    drop: true
+  b1_sgc_z3:
+    prior:
+      min: 1
+      max: 3
+    drop: true
+  b1:
+    value: 'lambda b1_ngc_z1, b1_sgc_z1, b1_ngc_z3, b1_sgc_z3: [b1_ngc_z1, b1_sgc_z1,
+      b1_ngc_z3, b1_sgc_z3]'
+    derived: false
+    latex: b_1
+  b2_ngc_z1:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    drop: true
+  b2_sgc_z1:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    drop: true
+  b2_ngc_z3:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    drop: true
+  b2_sgc_z3:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    drop: true
+  b2:
+    value: 'lambda b2_ngc_z1, b2_sgc_z1, b2_ngc_z3, b2_sgc_z3: [b2_ngc_z1, b2_sgc_z1,
+      b2_ngc_z3, b2_sgc_z3]'
+    derived: false
+  bG2_ngc_z1:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    drop: true
+  bG2_sgc_z1:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    drop: true
+  bG2_ngc_z3:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    drop: true
+  bG2_sgc_z3:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    drop: true
+  bG2:
+    value: 'lambda bG2_ngc_z1, bG2_sgc_z1, bG2_ngc_z3, bG2_sgc_z3: [bG2_ngc_z1, bG2_sgc_z1,
+      bG2_ngc_z3, bG2_sgc_z3]'
+    derived: false
+  fx:
+    value: 0.0
+  kJ0p5:
+    value: 0.0
+  tau_reio:
+    value: 0.0925
+    renames:
+    - tau
+  z:
+    value: 0.5
+  Tcmb:
+    value: 2.7255
+sampler:
+  nautilus:
+    n_live: 1000
+    n_eff: 10000
+    poolN: 72
+    logzero: -1.0e+30
+    version: null
+output: full
+version: 3.5.4

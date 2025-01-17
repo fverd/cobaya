@@ -1,0 +1,157 @@
+theory:
+  classy:
+    path: null
+    speed: 0.2
+    stop_at_error: false
+    extra_args:
+      non linear: hmcode
+      nonlinear_min_k_max: 20
+      N_ncdm: 1
+      N_ur: 2.0328
+    ignore_obsolete: true
+    use_renames: false
+    renames:
+      As: A_s
+      ns: n_s
+      nrun: alpha_s
+      nrunrun: beta_s
+      nt: n_t
+      ntrun: alpha_t
+      rdrag: rs_drag
+      omegak: Omega_k
+      omegal: Omega_Lambda
+      w: w0_fld
+      wa: wa_fld
+      omegabh2: omega_b
+      omegab: Omega_b
+      omegach2: omega_cdm
+      omegac: Omega_cdm
+      omegam: Omega_m
+      omegan: Omega_nu
+      tau: tau_reio
+      zrei: z_reio
+      deltazrei: reionization_width
+      helium_redshift: helium_fullreio_redshift
+      helium_delta_redshift: helium_fullreio_width
+      yhe: YHe
+      yheused: YHe
+    version: v3.2.0
+    input_params:
+    - A_s
+    - n_s
+    - h
+    - omega_b
+    - omega_cdm
+    - tau_reio
+    - m_ncdm
+    output_params: []
+likelihood:
+  planck_2018_lowl.TT:
+    lmin: 2
+    lmax: 29
+    type: CMB
+    aliases:
+    - lowT
+    speed: -1
+    stop_at_error: false
+    version: null
+    input_params:
+    - A_planck
+    output_params: []
+  planck_2018_lowl.EE:
+    type: CMB
+    aliases:
+    - lowE
+    speed: -1
+    stop_at_error: false
+    version: null
+    input_params:
+    - A_planck
+    output_params: []
+  planck_2018_highl_plik.TTTEEE_lite_native:
+    path: null
+    dataset_file: plik_lite_v22.dataset
+    dataset_params:
+      use_cl: tt te ee
+    aliases:
+    - plikHM_TTTEEE
+    speed: 200
+    type: CMB
+    stop_at_error: false
+    version: null
+    input_params:
+    - A_planck
+    output_params: []
+params:
+  logA:
+    prior:
+      min: 3.0
+      max: 3.1
+    latex: \log(10^{10} A_\mathrm{s})
+    drop: true
+  A_s:
+    value: 'lambda logA: 1e-10*np.exp(logA)'
+    latex: A_\mathrm{s}
+    derived: true
+    renames:
+    - As
+  n_s:
+    prior:
+      min: 0.9
+      max: 1.0
+    latex: n_\mathrm{s}
+    renames:
+    - ns
+  h:
+    prior:
+      min: 0.6
+      max: 0.8
+    latex: h
+  omega_b:
+    prior:
+      min: 0.015
+      max: 0.03
+    latex: \Omega_\mathrm{b} h^2
+    renames:
+    - omegabh2
+  omega_cdm:
+    prior:
+      min: 0.1
+      max: 0.14
+    latex: \Omega_\mathrm{c} h^2
+    renames:
+    - omegach2
+  tau_reio:
+    prior:
+      min: 0.03
+      max: 0.07
+    latex: \tau_\mathrm{reio}
+    renames:
+    - tau
+  m_ncdm:
+    value: 0.06
+    renames: mnu
+  A_planck:
+    prior:
+      dist: norm
+      loc: 1
+      scale: 0.0025
+    ref:
+      dist: norm
+      loc: 1
+      scale: 0.002
+    proposal: 0.0005
+    latex: y_\mathrm{cal}
+    renames: calPlanck
+  chi2__CMB:
+    latex: \chi^2_\mathrm{CMB}
+    derived: true
+sampler:
+  nautilus:
+    n_live: 1000
+    n_eff: 10000
+    poolN: 42
+    logzero: -1.0e+30
+    version: null
+output: planck
+version: 3.5.4

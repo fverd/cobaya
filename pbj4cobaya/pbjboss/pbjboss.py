@@ -4,6 +4,10 @@ r"""
 # Global
 import importlib.util, sys
 import numpy as np
+from scipy.special import sici
+from scipy.integrate import odeint
+from scipy.interpolate import interp1d
+
 # Local
 from cobaya.log import LoggedError
 from cobaya.likelihood import Likelihood
@@ -25,6 +29,12 @@ class pbjboss(Likelihood):
         # Start building the PBJ init dictionary
         self.pbjobj = self.pbj.Pbj(self.pbj_Dict)
 
+        # Set some standard vals 
+        for entry in self.pbj_Dict['AP']['fiducial_cosmology'].keys():
+            setattr(self.pbjobj, entry, self.pbj_Dict['AP']['fiducial_cosmology'][entry])
+        self.pbjobj.Omh2 = self.pbjobj.Obh2 + self.pbjobj.Och2 + self.pbjobj.Mnu/93.14
+        self.pbjobj.Om = self.pbjobj.Omh2/self.pbjobj.h**2
+        
         # Initialize the boss data as provided by the files
         self.initialize_data_boss()
 
@@ -44,10 +54,15 @@ class pbjboss(Likelihood):
         self.pbjobj.store_theorydict = self.pbj_Dict['likelihood'].get('store_theorydict', False)
 
         if self.pbjobj.do_analytic_marg or self.pbjobj.do_jeffreys_priors:
+            marg_params_all = ['bG3', 'c0', 'c2', 'c4', 'ck4', 'aP', 'e0k2', 'e2k2']
+            self.pbjobj.index_marg_param = []
             marg_params_dict = self.pbj_Dict['marg_params']
+            for key in marg_params_all:
+                # # This takes care of params in the list that are set to 0
+                if key in marg_params_dict.keys():
+                    self.pbjobj.index_marg_param.append(marg_params_all.index(key))
 
-            marg_params = list(marg_params_dict.keys())
-            self.pbjobj.index_marg_param = [marg_params.index(key) for key in marg_params]
+            marg_params = [marg_params_all[i] for i in self.pbjobj.index_marg_param] #check for full shape
 
             # Then compute quantities to be added to the chi2
             self.pbjobj.prior_vector = np.array(
@@ -78,22 +93,33 @@ class pbjboss(Likelihood):
                                                 self.pbjobj.prior_cov_inv, self.pbjobj.prior_vector)
 
         # Now deal with the required parameters
-        pbj_cosmo_pars=["h", "Obh2", "Och2", "ns", "As", "tau", "Tcmb", "z", "Mnu"]
+        self.pbj_cosmo_pars=["h", "Obh2", "Och2", "ns", "As", "tau", "Mnu"]
 
         # For the bias parameters check whether they are analytically marginalizes, otherwise add them to the requirements
-        pbj_bias_pars=['b1', 'b2', 'bG2', 'c0', 'c2', 'aP', 'e0k2', 'e2k2']
-        pbj_vary_bias_pars = [p for p in pbj_bias_pars if p not in marg_params]
+        pbj_bias_pars=['b1', 'b2', 'bG2', 'bG3', 'c0', 'c2', 'aP', 'e0k2', 'e2k2', "Tcmb", "z"]
+        self.pbj_vary_bias_pars = [p for p in pbj_bias_pars if p not in marg_params]
 
-        self.pbj_allpars = set(pbj_cosmo_pars) | set(pbj_vary_bias_pars)
+        self.pbj_allpars = self.pbj_cosmo_pars + self.pbj_vary_bias_pars
         self.pbjobj.varied_params = self.pbj_allpars
         self.pbjobj.full_param_dict = {key: 0. for key in self.pbj_allpars}
         self.pbjobj.prior_dictionary = {}
         self.renames_pbjtocob = {value: key for key, value in self.renames.items()}
 
+        print("Setting fx functions")
+        self.set_FRA_functions()
         # Log recap
         self.log.info(f'Analyzing boss at redshifts {self.pbjobj.z_bins}')
         self.log.info(f'Analytically marginalizing on {marg_params}')
     
+    def set_FRA_functions(self):
+        self.pbjobj.g_an = self.g_an
+        self.pbjobj.h_an = self.h_an
+        def s1_system(s1, t):
+            ds1dt = -2.5*s1+1.5*(self.g_an(t)-1)
+            return ds1dt
+        t = np.linspace(-10,25, 3000)
+        sol = odeint(s1_system, -3/5, t)
+        self.pbjobj.s_int = interp1d(t, sol[:, 0], fill_value='extrapolate')
 
     def initialize_data_boss(self):
         """
@@ -181,23 +207,42 @@ class pbjboss(Likelihood):
                                         IdxTot[i].astype(bool))]
             self.pbjobj.invCov[i] = np.linalg.inv(cut_cov)
 
+    def g_an(self, t):
+        return  1 + 6 * np.exp(-t) * np.cos(np.sqrt(6) * np.exp(-t / 2)) * sici(np.sqrt(6) * np.exp(-t / 2))[1] - 3 * np.exp(-t) * np.pi * np.sin(np.sqrt(6) * np.exp(-t / 2)) + 6 * np.exp(-t) * np.sin(np.sqrt(6) * np.exp(-t / 2)) * sici(np.sqrt(6) * np.exp(-t / 2))[0]
+    def h_an(self, t):
+        return 1 + 3 * np.sqrt(3 / 2) * np.exp(-3 * t / 2) * np.pi * np.cos(np.sqrt(6) * np.exp(-t / 2)) - 3 * np.exp(-t) * np.cos(np.sqrt(6) * np.exp(-t / 2))**2 + 3 * np.sqrt(6) * np.exp(-3 * t / 2) * sici(np.sqrt(6) * np.exp(-t / 2))[1] * np.sin(np.sqrt(6) * np.exp(-t / 2)) - 3 * np.sqrt(6) * np.exp(-3 * t / 2) * np.sin(np.sqrt(6) * np.exp(-t / 2)) * np.sinc(np.sqrt(6) * np.exp(-t / 2) / np.pi) - 3 * np.sqrt(6) * np.exp(-3 * t / 2) * np.cos(np.sqrt(6) * np.exp(-t / 2)) * sici(np.sqrt(6) * np.exp(-t / 2))[0]
+    
     def get_requirements(self):
-        requirements = []
-        for k in self.pbj_allpars:
-            if k in self.renames.values():
-                for v in self.renames:
-                    if self.renames[v] == k:
-                        requirements.append((v, None))
-                        break
-            else:
-                requirements.append((k, None))
+        requirements = {}
+        if self.pbj_Dict['theory']['linear'] == 'cobaya':
+            requirements['Pk_interpolator']= {'k_max': 50, 'z': [0.38, 0.61]}
+            for k in self.pbj_vary_bias_pars:
+                requirements[k] = None
+        else:
+            for k in self.pbj_allpars: # if PBJ hanles the Plin computation
+                if k in self.renames.values():
+                    for v in self.renames:
+                        if self.renames[v] == k:
+                            requirements[v] = None
+                            break
+                else:
+                    requirements[k] = None
         return requirements
   
     def translate_param(self, p):
         return self.renames_pbjtocob.get(p, p)
     
     def logp(self, **_params_values):
-        parvals = [_params_values[self.translate_param(k)] for k in self.pbj_allpars]
+
+        cosmo_par_values={}
+        for par in self.pbj_cosmo_pars: # take them from the theory code input
+            cosmo_par_values[self.translate_param(par)] = self.provider.get_param(self.translate_param(par))
+        all_param_values = cosmo_par_values | _params_values # join with the univoque PBJ ones
+
+        parvals = [all_param_values[self.translate_param(k)] for k in self.pbj_allpars]
+
+        self.pbjobj.cobaya_provider_Pk_interpolator = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"))
+
         chi2r = self.pbjobj.model_function(parvals)
         lnL = -0.5*chi2r
         return lnL

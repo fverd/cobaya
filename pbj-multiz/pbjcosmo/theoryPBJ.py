@@ -73,39 +73,24 @@ class PBJtheory:
         elif linear == 'bacco':
             return self.call_bacco(npoints, kmin, kmax, redshift, cosmo=cosmo,
                                    cold=cold)
+        elif linear == 'cobaya':
+            return self.provide_cobaya_PL(npoints, kmin, kmax, redshift)
+        
+    def provide_cobaya_PL(self, npoints, kmin, kmax, redshift):
+        kL = logspace(log10(kmin), log10(kmax), npoints)
 
+        # Requesto only up to k=50, so split the k vector
+        kcut = kL[where(kL <= 50)]
+        kext = kL[where(kL > 50)]
+        PL = self.cobaya_provider_Pk_interpolator.P(redshift, kcut) # The cobaya Pk interpolator is very similar to camb one
 
-#-------------------------------------------------------------------------------
-
+        # Extrapolation with power law
+        m = math.log(PL[-1] / PL[-2]) / math.log(kcut[-1] / kcut[-2])
+        PL_ext = PL[-1] / kcut[-1]**m * kext**m
+        return kL, hstack((PL, PL_ext))
+    
     def call_bacco(self, npoints, kmin, kmax, redshift, cold=True, cosmo=None):
-        """
-        Call to the BACCO linear emulator given a set cosmological
-        parameters.  By default, the P(k) is computed in 1000 points
-        from kmin=1e-4 to kmax=198.  To account for the k-cut of BACCO
-        (k_max = 50 h/Mpc), a linear extrapolation is implemented for
-        the log(P(k)).
 
-        Parameters
-        ----------
-        npoints : int, optional
-            Number of points to sample the power spectrum. Default is 1000.
-        kmin : float, optional
-            Minimum k value for the linear power spectrum. Default is 1e-4.
-        kmax : float, optional
-            Maximum k value for the linear power spectrum. Default is 198.
-        cold : bool, optional
-            Compute the cold matter power spectrum. Default is False.
-        cosmo : dict, optional
-            Cosmological parameters. Default is None, parameters are fixed and
-            read from the paramfile.
-
-        Returns
-        -------
-        kL : (npoints,) array
-            Wavenumber array.
-        PL : (npoints,) array
-            Linear power spectrum.
-        """
         if cosmo is not None:
             ns   = cosmo['ns'] if 'ns' in cosmo else self.ns
             As   = cosmo['As'] if 'As' in cosmo else self.As
@@ -114,6 +99,8 @@ class PBJtheory:
             Och2 = cosmo['Och2'] if 'Och2' in cosmo else self.Och2
             Mnu  = cosmo['Mnu'] if 'Mnu' in cosmo else self.Mnu
             tau  = cosmo['tau'] if 'tau' in cosmo else 0.0952
+            fx  = cosmo['fx'] if 'fx' in cosmo else 0.
+            kJ0p5  = cosmo['kJ0p5'] if 'kJ0p5' in cosmo else 0.
         else:
             ns   = self.ns
             As   = self.As
@@ -122,6 +109,7 @@ class PBJtheory:
             Och2 = self.Och2
             Mnu  = self.Mnu
             tau  = self.tau
+            fx = 0.
 
         params = {
             'ns'            : ns,
@@ -142,12 +130,101 @@ class PBJtheory:
         kcut = kL[where(kL <= 50)]
         kext = kL[where(kL > 50)]
         _, PL = self.emulator.get_linear_pk(k=kcut, cold=cold, **params)
+        # print('fx is', fx)
+        k, z, pk_as = self.cobara_provider.get_Pk_grid()
+
+        if fx>0.:
+            a0p5=1/(1+0.5)
+            aNR = 0.0321*0.01/kJ0p5
+            # compute growth factor for every k
+            Delta_logD_k=[]
+            for k in kcut:
+                te_ini_of_ak=np.log(aNR/a0p5) - 2*np.log(k/kJ0p5)
+                te_end_of_ak=np.log(1/(1+redshift)/a0p5) - 2*np.log(k/kJ0p5)
+                D_integral, _ = quad(self.s_int, te_ini_of_ak, te_end_of_ak,epsrel=1.e-2)
+                Delta_logD_k.append(D_integral)
+            Delta_D_bacco_from0 = np.exp(fx*np.array(Delta_logD_k)) 
+            PL = PL*Delta_D_bacco_from0**2
 
         # Extrapolation with power law
         m = math.log(PL[-1] / PL[-2]) / math.log(kcut[-1] / kcut[-2])
         PL_ext = PL[-1] / kcut[-1]**m * kext**m
 
         return kL, hstack((PL, PL_ext))
+    
+#-------------------------------------------------------------------------------
+
+    # def call_bacco(self, npoints, kmin, kmax, redshift, cold=True, cosmo=None):
+    #     """
+    #     Call to the BACCO linear emulator given a set cosmological
+    #     parameters.  By default, the P(k) is computed in 1000 points
+    #     from kmin=1e-4 to kmax=198.  To account for the k-cut of BACCO
+    #     (k_max = 50 h/Mpc), a linear extrapolation is implemented for
+    #     the log(P(k)).
+
+    #     Parameters
+    #     ----------
+    #     npoints : int, optional
+    #         Number of points to sample the power spectrum. Default is 1000.
+    #     kmin : float, optional
+    #         Minimum k value for the linear power spectrum. Default is 1e-4.
+    #     kmax : float, optional
+    #         Maximum k value for the linear power spectrum. Default is 198.
+    #     cold : bool, optional
+    #         Compute the cold matter power spectrum. Default is False.
+    #     cosmo : dict, optional
+    #         Cosmological parameters. Default is None, parameters are fixed and
+    #         read from the paramfile.
+
+    #     Returns
+    #     -------
+    #     kL : (npoints,) array
+    #         Wavenumber array.
+    #     PL : (npoints,) array
+    #         Linear power spectrum.
+    #     """
+    #     if cosmo is not None:
+    #         ns   = cosmo['ns'] if 'ns' in cosmo else self.ns
+    #         As   = cosmo['As'] if 'As' in cosmo else self.As
+    #         h    = cosmo['h'] if 'h' in cosmo else self.h
+    #         Obh2 = cosmo['Obh2'] if 'Obh2' in cosmo else self.Obh2
+    #         Och2 = cosmo['Och2'] if 'Och2' in cosmo else self.Och2
+    #         Mnu  = cosmo['Mnu'] if 'Mnu' in cosmo else self.Mnu
+    #         tau  = cosmo['tau'] if 'tau' in cosmo else 0.0952
+    #     else:
+    #         ns   = self.ns
+    #         As   = self.As
+    #         h    = self.h
+    #         Obh2 = self.Obh2
+    #         Och2 = self.Och2
+    #         Mnu  = self.Mnu
+    #         tau  = self.tau
+
+    #     params = {
+    #         'ns'            : ns,
+    #         'A_s'           : As,
+    #         'tau'           : tau,
+    #         'hubble'        : h,
+    #         'omega_baryon'  : Obh2/h/h,
+    #         'omega_cold'    : (Och2 + Obh2)/h/h, # This is Omega_cb!!!
+    #         'neutrino_mass' : Mnu,
+    #         'w0'            : -1,
+    #         'wa'            : 0,
+    #         'expfactor'     : 1/(1+redshift)
+    #     }
+
+    #     kL = logspace(log10(kmin), log10(kmax), npoints)
+
+    #     # The emulator only works up to k=50, so split the k vector
+    #     kcut = kL[where(kL <= 50)]
+    #     kext = kL[where(kL > 50)]
+    #     _, PL = self.emulator.get_linear_pk(k=kcut, cold=cold, **params)
+
+    #     # Extrapolation with power law
+    #     m = math.log(PL[-1] / PL[-2]) / math.log(kcut[-1] / kcut[-2])
+    #     PL_ext = PL[-1] / kcut[-1]**m * kext**m
+
+    #     return kL, hstack((PL, PL_ext))
 
 #-------------------------------------------------------------------------------
 

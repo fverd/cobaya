@@ -1,0 +1,14 @@
+﻿logA	\log(10^{10} A_\mathrm{s})
+ns	n_\mathrm{s}
+h	h
+ombh2	\Omega_\mathrm{b} h^2
+omch2	\Omega_\mathrm{c} h^2
+tau	\tau_\mathrm{reio}
+A_planck	y_\mathrm{cal}
+As*	A_\mathrm{s}
+H0*	H_0
+chi2__CMB*	\chi^2_\mathrm{CMB}
+logprior__0*	\log\pi_\mathrm{0}
+loglike__planck_2018_lowl.TT*	\log\mathcal{L}_\mathrm{planck\ 2018\ lowl.TT}
+loglike__planck_2018_lowl.EE*	\log\mathcal{L}_\mathrm{planck\ 2018\ lowl.EE}
+loglike__planck_2018_highl_plik.TTTEEE_lite_native*	\log\mathcal{L}_\mathrm{planck\ 2018\ highl\ plik.TTTEEE\ lite\ native}
