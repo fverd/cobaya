@@ -158,9 +158,9 @@ params:
   Tcmb: 2.7255
 
 sampler:
-  evaluate:
-  # nautilus:
-  #   poolN: 72
+  # evaluate:
+  nautilus:
+    poolN: 72
 
 
-output: chains/test/test
+output: chains/bossb1/bossb1
