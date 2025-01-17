@@ -152,8 +152,6 @@ params:
   b2: 0.
   bG2: 0.
 
-  fx: 0.
-  kJ0p5: 0.
   # omega_b: 0.0220684
   tau_reio: 0.0925
   z: 0.5

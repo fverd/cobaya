@@ -241,7 +241,8 @@ class pbjboss(Likelihood):
 
         parvals = [all_param_values[self.translate_param(k)] for k in self.pbj_allpars]
 
-        self.pbjobj.cobaya_provider_Pk_interpolator = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"))
+        if self.pbj_Dict['theory']['linear'] == 'cobaya':
+            self.pbjobj.cobaya_provider_Pk_interpolator = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"))
 
         chi2r = self.pbjobj.model_function(parvals)
         lnL = -0.5*chi2r
