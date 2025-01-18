@@ -44,7 +44,7 @@ class Pbj(PBJtheory, PBJtemplates, PBJlikelihood, PBJsampler):
         print("\033[1;32m[info] \033[00m"+\
               "The linear power spectrum will be computed with "+self.linear)
         # Load the linear emulator
-        if self.linear == "bacco" and "baccoemu" in sys.modules:
+        if "baccoemu" in sys.modules:
             self.emulator = baccoemu.Matter_powerspectrum(linear=True,
                                                           smeared_bao=False,
                                                           nonlinear_boost=False,
@@ -111,10 +111,10 @@ class Pbj(PBJtheory, PBJtemplates, PBJlikelihood, PBJsampler):
                       self.Inputcosmo['inputfile'])
                 kL, PL = np.array(Pinput).T
             except:
-                if self.do_redshift_rescaling:
-                    kL, PL = self.linear_power_spectrum(linear=self.linear, redshift=0)
+                if self.do_redshift_rescaling: #SONO INVERTITI QUA?
+                    kL, PL = self.linear_power_spectrum(linear='bacco', redshift=0)
                 else:
-                    kL, PL = self.linear_power_spectrum(linear=self.linear,
+                    kL, PL = self.linear_power_spectrum(linear='bacco',
                                                         redshift=self.z)
 
             self.kL = kL

@@ -32,10 +32,6 @@ likelihood:
           h: 0.676
           Obh2: 0.022
           Och2: 0.1190
-          Mnu: 0.06
-          w0: 0
-          wa: 0
-          Ok: 0
 
       likelihood:
         observables: ['P0', 'P2'] # options: Pk, Bk, P0, P2, P4, B0, B2, B4
@@ -70,7 +66,16 @@ likelihood:
         do_redshift_rescaling: False
 
       input_cosmology: # to initialise base quantities
-
+        h: 0.676
+        Obh2: 0.022
+        Och2: 0.1190
+        ns: 0.9624
+        As: 2.13e-09
+        As_Asfid: 1.0
+        tau: 0.0925
+        Tcmb: 2.725
+        Mnu: 0.
+        z: 0.5
     renames:
       omega_b: Obh2
       omega_cdm: Och2

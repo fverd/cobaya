@@ -6,7 +6,7 @@
 #SBATCH --mail-user=fverdian@sissa.it
 #
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=40
+#SBATCH --cpus-per-task=22
 
 #SBATCH --time=48:00:00  
 #

@@ -31,7 +31,7 @@ likelihood:
         type: Gaussian # options: Gaussian, Hartlap, Sellentin
         cosmology: varied # options: fixed, varied
         do_analytic_marg: True
-        # store_theorydict: True
+        store_theorydict: True
       marg_params: 
         bG3:
           mean: [0., 0., 0., 0.]
@@ -157,6 +157,7 @@ params:
   z: 0.5
   Tcmb: 2.7255
 
+# debug: True
 sampler:
   # evaluate:
   nautilus:

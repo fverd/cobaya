@@ -74,15 +74,20 @@ class PBJtheory:
             return self.call_bacco(npoints, kmin, kmax, redshift, cosmo=cosmo,
                                    cold=cold)
         elif linear == 'cobaya':
-            return self.provide_cobaya_PL(npoints, kmin, kmax, redshift)
+            return self.provide_cobaya_PL(npoints, kmin, kmax, redshift, cosmo=cosmo)
         
-    def provide_cobaya_PL(self, npoints, kmin, kmax, redshift):
+    def provide_cobaya_PL(self, npoints, kmin, kmax, redshift, cosmo=None):
         kL = logspace(log10(kmin), log10(kmax), npoints)
-
+        if cosmo is not None:
+            h    = cosmo['h'] if 'h' in cosmo else self.h
+        else:
+            raise ValueError('You should provide h for units conversion')
         # Requesto only up to k=50, so split the k vector
         kcut = kL[where(kL <= 50)]
         kext = kL[where(kL > 50)]
-        PL = self.cobaya_provider_Pk_interpolator.P(redshift, kcut) # The cobaya Pk interpolator is very similar to camb one
+        #Occhio la funzione Pk_interpolator è bastarda, le unita sono 1/Mpc e non h/Mpc
+        PL = self.cobaya_provider_Pk_interpolator.P(redshift, kcut*h) # The cobaya Pk interpolator is very similar to camb one
+        PL *= h**3
 
         # Extrapolation with power law
         m = math.log(PL[-1] / PL[-2]) / math.log(kcut[-1] / kcut[-2])

@@ -30,10 +30,10 @@ class pbjboss(Likelihood):
         self.pbjobj = self.pbj.Pbj(self.pbj_Dict)
 
         # Set some standard vals 
-        for entry in self.pbj_Dict['AP']['fiducial_cosmology'].keys():
-            setattr(self.pbjobj, entry, self.pbj_Dict['AP']['fiducial_cosmology'][entry])
-        self.pbjobj.Omh2 = self.pbjobj.Obh2 + self.pbjobj.Och2 + self.pbjobj.Mnu/93.14
-        self.pbjobj.Om = self.pbjobj.Omh2/self.pbjobj.h**2
+        # for entry in self.pbj_Dict['AP']['fiducial_cosmology'].keys():
+        #     setattr(self.pbjobj, entry, self.pbj_Dict['AP']['fiducial_cosmology'][entry])
+        # self.pbjobj.Omh2 = self.pbjobj.Obh2 + self.pbjobj.Och2 + self.pbjobj.Mnu/93.14
+        # self.pbjobj.Om = self.pbjobj.Omh2/self.pbjobj.h**2
         
         # Initialize the boss data as provided by the files
         self.initialize_data_boss()
@@ -93,10 +93,10 @@ class pbjboss(Likelihood):
                                                 self.pbjobj.prior_cov_inv, self.pbjobj.prior_vector)
 
         # Now deal with the required parameters
-        self.pbj_cosmo_pars=["h", "Obh2", "Och2", "ns", "As", "tau", "Mnu"]
+        self.pbj_cosmo_pars=["h", "Obh2", "Och2", "ns", "As", "tau"]
 
         # For the bias parameters check whether they are analytically marginalizes, otherwise add them to the requirements
-        pbj_bias_pars=['b1', 'b2', 'bG2', 'bG3', 'c0', 'c2', 'aP', 'e0k2', 'e2k2', "Tcmb", "z"]
+        pbj_bias_pars=['b1', 'b2', 'bG2', 'bG3', 'c0', 'c2', 'aP', 'e0k2', 'e2k2', "Tcmb", "z", "Mnu"]
         self.pbj_vary_bias_pars = [p for p in pbj_bias_pars if p not in marg_params]
 
         self.pbj_allpars = self.pbj_cosmo_pars + self.pbj_vary_bias_pars
@@ -215,7 +215,7 @@ class pbjboss(Likelihood):
     def get_requirements(self):
         requirements = {}
         if self.pbj_Dict['theory']['linear'] == 'cobaya':
-            requirements['Pk_interpolator']= {'k_max': 50, 'z': [0.38, 0.61]}
+            requirements['Pk_interpolator']= {'k_max': 50, 'z': [0., 0.38, 0.61], 'nonlinear': False}
             for k in self.pbj_vary_bias_pars:
                 requirements[k] = None
         else:
@@ -242,7 +242,7 @@ class pbjboss(Likelihood):
         parvals = [all_param_values[self.translate_param(k)] for k in self.pbj_allpars]
 
         if self.pbj_Dict['theory']['linear'] == 'cobaya':
-            self.pbjobj.cobaya_provider_Pk_interpolator = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"))
+            self.pbjobj.cobaya_provider_Pk_interpolator = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"), nonlinear=False)
 
         chi2r = self.pbjobj.model_function(parvals)
         lnL = -0.5*chi2r
