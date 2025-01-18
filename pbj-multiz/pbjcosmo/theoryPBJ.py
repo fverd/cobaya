@@ -131,7 +131,6 @@ class PBJtheory:
         kext = kL[where(kL > 50)]
         _, PL = self.emulator.get_linear_pk(k=kcut, cold=cold, **params)
         # print('fx is', fx)
-        k, z, pk_as = self.cobara_provider.get_Pk_grid()
 
         if fx>0.:
             a0p5=1/(1+0.5)

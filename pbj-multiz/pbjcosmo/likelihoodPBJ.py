@@ -28,15 +28,15 @@ from .tools import prior_handler as priorhandler
 #except ImportWarning as err:
 #    print("\033[1;31m[WARNING]: \033[00m"+"PyMultinest not installed."+err)
 
-try:
-    import pocomc
-except ImportWarning as err:
-    print("\033[1;31m[WARNING]: \033[00m"+"pocomc not installed."+err)
+# try:
+#     import pocomc
+# except ImportWarning as err:
+#     print("\033[1;31m[WARNING]: \033[00m"+"pocomc not installed."+err)
 
-try:
-    import ultranest
-except ImportWarning as err:
-    print("\033[1;31m[WARNING]: \033[00m"+"ultranest not installed."+err)
+# try:
+#     import ultranest
+# except ImportWarning as err:
+#     print("\033[1;31m[WARNING]: \033[00m"+"ultranest not installed."+err)
 
 plt.rc('text', usetex=True)
 plt.rc('font', size=11)
