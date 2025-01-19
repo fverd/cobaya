@@ -154,7 +154,8 @@ class nautilus(Sampler):
             return
         self.dump_paramnames(self.raw_prefix)
         self.collection = self.save_sample(self.raw_prefix + ".txt", "1")
-
+        self.log.info("Removing checkpoint file '%s'", self.checkpoint_filename())
+        os.remove(self.checkpoint_filename())
         self.log.info("Finished! Nautilus output stored in '%s'", self.raw_prefix)
 
     def samples(
