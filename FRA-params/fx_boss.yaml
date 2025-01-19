@@ -1,7 +1,15 @@
 theory:
+  classy:
+    extra_args:
+      N_ncdm: 0.
+      N_ur: 3.046
+      gauge: newtonian
+      non_linear: False
+
+    ignore_obsolete: True
+    stop_at_error: True
 
 likelihood:
-
   pbjboss:
     python_path: pbj4cobaya/
     pbj_path: pbj-multiz/
@@ -53,7 +61,7 @@ likelihood:
           sigma: [2., 2., 2., 2.]
 
       theory:
-        linear: bacco # options: camb, bacco
+        linear: cobaya # options: camb, bacco, cobaya
         IRresum: True
         IRresum_kind: EH # options EH, DST
         do_redshift_rescaling: False
@@ -79,13 +87,25 @@ likelihood:
 
 params:
 
-  fx:
+  omega_chi:
     prior:
       min: 0.
-      max: 0.5
-    latex: f_\chi
+      max: 0.06
+    latex: \Omega_\chi h^2
 
-  kJ0p5: 1000
+  omega_cdm:
+    prior:
+      min: 0.1
+      max: 0.16
+    latex: \Omega_\mathrm{c} h^2
+
+  kJ0p5: 
+    value: 0.01
+    drop: True
+
+  acs_chi:
+    value: 'lambda kJ0p5: 0.0321*0.01/kJ0p5'
+  cs2_peak_chi: 0.333333
 
   h:
     prior:
@@ -100,17 +120,15 @@ params:
       scale: 0.00038
     latex: \Omega_\mathrm{b} h^2
 
-  omega_cdm:
-    prior:
-      min: 0.1
-      max: 0.16
-    latex: \Omega_\mathrm{c} h^2
+
 
   logA:
     prior:
       min: 2.
       max: 3.5
     latex: \log(10^{10} A_\mathrm{s})
+    drop: True
+
   A_s:
     value: 'lambda logA: 1e-10*np.exp(logA)'
     latex: A_\mathrm{s}
@@ -152,16 +170,19 @@ params:
     latex: b_1
   b2: 0.
   bG2: 0.
+  # fx: 0.
+  # kJ0p5: 0.
   # omega_b: 0.0220684
   tau_reio: 0.0925
+  Mnu: 0.
   z: 0.5
-  Mnu: 0.0
   Tcmb: 2.7255
+
 
 sampler:
   # evaluate:
   nautilus:
-    poolN: 24
+    poolN: 70
 
-
-output: chains-fx/bossfxkJ1000/bossfx
+# debug: True
+output: chains/boss_kJ0p01/withfx

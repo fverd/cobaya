@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-#SBATCH --job-name=cob_class
+#SBATCH --job-name=cob_fx
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=fverdian@sissa.it
 #
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=22
+#SBATCH --cpus-per-task=20
 
 #SBATCH --time=48:00:00  
 #
@@ -15,4 +15,4 @@
 export OMP_NUM_THREADS=$((${SLURM_CPUS_PER_TASK}/2))
 export RDMAV_FORK_SAFE=1
 
-cobaya-run FRA-params/pbj_boss_class.yaml -f
+cobaya-run FRA-params/fx_boss -f
