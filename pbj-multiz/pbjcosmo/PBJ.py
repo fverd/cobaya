@@ -194,7 +194,6 @@ class Pbj(PBJtheory, PBJtemplates, PBJlikelihood, PBJsampler):
                 try:
                     self.FiducialCosmo = Dict['AP']['fiducial_cosmology']
                     if hasattr(self, 'z_bins'):
-                        print(self.z_bins,self.FiducialCosmo)
                         self._set_fiducials_for_AP(self.z_bins, self.FiducialCosmo)
                     else:
                         self._set_fiducials_for_AP(self.z, self.FiducialCosmo)
