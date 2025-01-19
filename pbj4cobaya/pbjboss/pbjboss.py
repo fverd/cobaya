@@ -215,7 +215,7 @@ class pbjboss(Likelihood):
     def get_requirements(self):
         requirements = {}
         if self.pbj_Dict['theory']['linear'] == 'cobaya':
-            requirements['Pk_interpolator']= {'k_max': 50, 'z': [0., 0.38, 0.61], 'nonlinear': False}
+            requirements['Pk_interpolator']= {'k_max': 5., 'z': [0., 0.38, 0.61], 'nonlinear': False}
             for k in self.pbj_vary_bias_pars:
                 requirements[k] = None
         else:

@@ -82,9 +82,9 @@ class PBJtheory:
             h    = cosmo['h'] if 'h' in cosmo else self.h
         else:
             raise ValueError('You should provide h for units conversion')
-        # Requesto only up to k=50, so split the k vector
-        kcut = kL[where(kL <= 50)]
-        kext = kL[where(kL > 50)]
+        # Requesto only up to k=5, so split the k vector
+        kcut = kL[where(kL <= 5)]
+        kext = kL[where(kL > 5)]
         #Occhio la funzione Pk_interpolator è bastarda, le unita sono 1/Mpc e non h/Mpc
         PL = self.cobaya_provider_Pk_interpolator.P(redshift, kcut*h) # The cobaya Pk interpolator is very similar to camb one
         PL *= h**3
