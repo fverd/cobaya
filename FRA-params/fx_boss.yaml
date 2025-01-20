@@ -5,7 +5,6 @@ theory:
       N_ur: 3.046
       gauge: newtonian
       non_linear: False
-
     ignore_obsolete: True
     stop_at_error: True
 
@@ -36,6 +35,7 @@ likelihood:
 
       likelihood:
         observables: ['P0', 'P2'] # options: Pk, Bk, P0, P2, P4, B0, B2, B4
+        model: model_varied_cosmology_analytic_marg_multiz_withchi
         type: Gaussian # options: Gaussian, Hartlap, Sellentin
         cosmology: varied # options: fixed, varied
         do_analytic_marg: True
@@ -81,26 +81,26 @@ likelihood:
     renames:
       omega_b: Obh2
       omega_cdm: Och2
+      omega_chi: Ochih2
       A_s: As
       n_s: ns
       tau_reio: tau
 
 params:
-
   omega_chi:
     prior:
-      min: 0.
-      max: 0.06
+      min: 0.0
+      max: 0.16
     latex: \Omega_\chi h^2
 
   omega_cdm:
     prior:
-      min: 0.1
+      min: 0.0
       max: 0.16
     latex: \Omega_\mathrm{c} h^2
 
   kJ0p5: 
-    value: 0.01
+    value: 500.
     drop: True
 
   acs_chi:
@@ -121,11 +121,10 @@ params:
     latex: \Omega_\mathrm{b} h^2
 
 
-
   logA:
     prior:
       min: 2.
-      max: 3.5
+      max: 3.8
     latex: \log(10^{10} A_\mathrm{s})
     drop: True
 
@@ -170,9 +169,6 @@ params:
     latex: b_1
   b2: 0.
   bG2: 0.
-  # fx: 0.
-  # kJ0p5: 0.
-  # omega_b: 0.0220684
   tau_reio: 0.0925
   Mnu: 0.
   z: 0.5
@@ -180,9 +176,9 @@ params:
 
 
 sampler:
-  # evaluate:
-  nautilus:
-    poolN: 70
+  evaluate:
+  # nautilus:
+    # poolN: 70
 
 # debug: True
-output: chains/boss_kJ0p01/withfx
+output: chains-fx/kJ500/chain

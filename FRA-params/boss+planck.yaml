@@ -165,7 +165,7 @@ params:
 sampler:
   # evaluate:
   nautilus:
-    poolN: 1
+    poolN: 72
 
 # debug: True
 # timing: True

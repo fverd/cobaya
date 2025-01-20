@@ -41,12 +41,21 @@ class pbjboss(Likelihood):
         # Cut the P vectors
         self.CutVectors_boss()
 
-        # Force select the likelihood
-        if hasattr(self.pbjobj, 'z_bins'):
-            self.pbjobj.model_function = self.pbjobj.model_varied_cosmology_analytic_marg_multiz
-            self.log.info(f"Using {self.pbjobj.model_function.__name__} as likelihood model function")
-        else:
+        if not hasattr(self.pbjobj, 'z_bins'):
             raise LoggedError(self.log, "You must specify 'redshift_bins' for BOSS likelihood")
+
+        # Force select the likelihood
+        try:
+            self.pbjobj.model_function = getattr(self.pbjobj, self.pbj_Dict['likelihood']['model'], None)
+            self.log.info(f"Using {self.pbjobj.model_function.__name__} as likelihood model function")
+        except:
+            raise NotImplementedError(r"Likelihood model function not implemented.")
+        
+        if 'multiz' not in self.pbj_Dict['likelihood']['model']:
+            raise ValueError(r"For analyzing boss you must choose a model wich supports multiple redshift bins.")
+        
+        # if hasattr(self.pbjobj, 'z_bins'):
+        #     self.pbjobj.model_function = self.pbjobj.model_varied_cosmology_analytic_marg_multiz
 
         # Setup for analytic marginalisation
         self.pbjobj.do_analytic_marg = self.pbj_Dict['likelihood'].get('do_analytic_marg', False)
@@ -93,10 +102,10 @@ class pbjboss(Likelihood):
                                                 self.pbjobj.prior_cov_inv, self.pbjobj.prior_vector)
 
         # Now deal with the required parameters
-        self.pbj_cosmo_pars=["h", "Obh2", "Och2", "ns", "As", "tau"]
+        self.pbj_cosmo_pars=['h', 'Obh2', 'Och2', 'ns', 'As', 'tau',  'Mnu', 'Ochih2']
 
         # For the bias parameters check whether they are analytically marginalizes, otherwise add them to the requirements
-        pbj_bias_pars=['b1', 'b2', 'bG2', 'bG3', 'c0', 'c2', 'aP', 'e0k2', 'e2k2', "Tcmb", "z", "Mnu"]
+        pbj_bias_pars=['b1', 'b2', 'bG2', 'bG3', 'c0', 'c2', 'aP', 'e0k2', 'e2k2', "Tcmb", "z"]
         self.pbj_vary_bias_pars = [p for p in pbj_bias_pars if p not in marg_params]
 
         self.pbj_allpars = self.pbj_cosmo_pars + self.pbj_vary_bias_pars
@@ -243,7 +252,7 @@ class pbjboss(Likelihood):
 
         if self.pbj_Dict['theory']['linear'] == 'cobaya':
             self.pbjobj.cobaya_provider_Pk_interpolator = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"), nonlinear=False)
-
         chi2r = self.pbjobj.model_function(parvals)
+
         lnL = -0.5*chi2r
         return lnL

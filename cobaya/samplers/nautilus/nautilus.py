@@ -72,19 +72,22 @@ class nautilus(Sampler):
         sampled_params_info = self.model.prior._parameterization.sampled_params_info()
 
         # PREPARE THE PRIOR
-        # Si puo fare di meglio, dargli dist quella di cobaya
-        self.naut_prior = self.naut.Prior()
+        # As for the polychord sampler, I sample directly the posterior as if it was the likelihood
+        # Thi is described in https://nautilus-sampler.readthedocs.io/en/latest/guides/priors.html "without transformations"
+        # Anyway, we must have an integration cube to give to the nautilus sampler 
+        # For the moment, for Gaussian priors I use a uniform interva of 4 sigmas
+        self.naut_flat_prior = self.naut.Prior()
         for p in self.model.parameterization.sampled_params():
             if(sampled_params_info[p].get("prior").get("dist"))=='norm':
                 ploc=sampled_params_info[p].get("prior").get('loc')
                 pscale=sampled_params_info[p].get("prior").get('scale')
-                self.mpi_info(f'Gaussian prior on {p}: (mu={ploc}, sigma={pscale})')
-                self.naut_prior.add_parameter(p, dist=norm(loc=ploc,scale=pscale))
+                self.mpi_info(f'Wide flat prior of 4sigma for {p}: (mu={ploc}, sigma={pscale})')
+                self.naut_flat_prior.add_parameter(p, dist=(ploc-4*pscale, ploc+4*pscale))
             else:
                 pmin=sampled_params_info[p].get("prior").get('min')
                 pmax=sampled_params_info[p].get("prior").get('max')
                 self.mpi_info(f'Flat prior on {p}: [{pmin},{pmax}]')
-                self.naut_prior.add_parameter(p, dist=(pmin, pmax))
+                self.naut_flat_prior.add_parameter(p, dist=(pmin, pmax))
 
         # Done!
         if is_main_process():
@@ -106,12 +109,14 @@ class nautilus(Sampler):
             if len(derived) != self.n_derived:
                 derived = np.full(self.n_derived, np.nan)
             derived = list(derived) + list(result.logpriors) + list(loglikes)
+            if result.logpost != result.logpost:
+                return self.logzero, derived
             return max(result.logpost, self.logzero), derived
-
+        
         sync_processes()
         self.mpi_info("Calling Nautilus...")
 
-        self.naut_sampler = self.naut.Sampler(self.naut_prior, logpost, n_live=self.n_live, pool=self.poolN, pass_dict=False, filepath=self.checkpoint_filename())
+        self.naut_sampler = self.naut.Sampler(self.naut_flat_prior, logpost, n_live=self.n_live, pool=self.poolN, pass_dict=False, filepath=self.checkpoint_filename())
         self.naut_sampler.run(verbose=True, discard_exploration=False, n_eff=self.n_eff)
         self.process_raw_output()
 
@@ -198,62 +203,6 @@ class nautilus(Sampler):
             if is_main_process():
                 collection = collection.to_getdist()
         return share_mpi(collection)
-
-    def products(
-            self,
-            combined: bool = False,
-            skip_samples: float = 0,
-            to_getdist: bool = False,
-    ) -> Dict:
-        """
-        Returns the products of the sampling process.
-
-        Parameters
-        ----------
-        combined: bool, default: False
-            If ``True`` returns the same, single posterior for all processes. Otherwise,
-            it is only returned for the root process (this behaviour is kept for
-            compatibility with the equivalent function for MCMC).
-        skip_samples: int or float, default: 0
-            No effect (skipping initial samples from a sorted nested sampling sample would
-            bias it). Raises a warning if greater than 0.
-        to_getdist: bool, default: False
-            If ``True``, returns :class:`getdist.MCSamples` instances for the full
-            posterior sample and the clusters, for all MPI processes (``combined`` is
-            ignored).
-
-        Returns
-        -------
-        dict, None
-            A dictionary containing the :class:`cobaya.collection.SampleCollection` of
-            accepted steps under ``"sample"``, the log-evidence and its uncertainty
-            under ``logZ`` and ``logZstd`` respectively, and the same for the individual
-            clusters, if present, under the ``clusters`` key.
-
-        Notes
-        -----
-        If either ``combined`` or ``to_getdist`` are ``True``, the same products dict is
-        returned for all processes. Otherwise, ``None`` is returned for processes of rank
-        larger than 0.
-        """
-        products = {}
-        if is_main_process():
-            products = {
-                "logZ": self.logZ,
-                "logZstd": self.logZstd,
-                "sample": self.samples(
-                    combined=combined, skip_samples=skip_samples, to_getdist=to_getdist),
-            }
-            if self.pc_settings.do_clustering:
-                products["clusters"] = {i: {} for i in self.clusters}
-                for i, s in self.samples_clusters(to_getdist=to_getdist).items():
-                    products["clusters"][i]["logZ"] = self.clusters[i]["logZ"]
-                    products["clusters"][i]["logZstd"] = self.clusters[i]["logZstd"]
-                    products["clusters"][i]["sample"] = s
-        do_bcast = combined or to_getdist
-        if do_bcast:
-            return share_mpi(products)
-        return products
 
     def checkpoint_filename(self):
         if self.output:

@@ -31,7 +31,7 @@ likelihood:
         type: Gaussian # options: Gaussian, Hartlap, Sellentin
         cosmology: varied # options: fixed, varied
         do_analytic_marg: True
-        store_theorydict: True
+        # store_theorydict: True
       marg_params: 
         bG3:
           mean: [0., 0., 0., 0.]
@@ -108,18 +108,9 @@ params:
     value: 'lambda logA: 1e-10*np.exp(logA)'
     latex: A_\mathrm{s}
 
-  n_s:
-    prior:
-      dist: norm
-      loc: 0.9649
-      scale: 0.0042
-    latex: n_s
+  n_s: 0.9649
 
-  Mnu: 
-    prior:
-      min: 0.0
-      max: 1.
-    latex: M_nu
+  Mnu: 0.06
 
   b1_ngc_z1:
     prior:
@@ -164,4 +155,4 @@ sampler:
     poolN: 72
 
 
-output: chains/bossb1/bossb1
+output: chains/bossb1_withlklproper/bossb1

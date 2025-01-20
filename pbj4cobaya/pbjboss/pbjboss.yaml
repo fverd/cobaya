@@ -2,9 +2,14 @@ pbj_path:
 data_path:
 pbj_Dict:
 k_max: 
+params:
+  Ochih2: 0.
+  Mnu: 0.
+
 renames:
   omega_b: Obh2
   omega_cdm: Och2
+  omega_chi: Ochih2
   A_s: As
   n_s: ns
   tau_reio: tau

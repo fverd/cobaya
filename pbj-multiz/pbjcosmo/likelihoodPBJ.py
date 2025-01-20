@@ -398,15 +398,95 @@ class PBJlikelihood:
 
             deltaTD = np.atleast_2d(TheoryVec - np.concatenate(self.CutDataVecs[ii]))
 
-            # F0 = np.einsum('ri, ij, rj -> r', deltaTD, self.invCov[ii], deltaTD) +\
-            #     self.prior_term_F0[ii]
-            # F1i = -np.einsum('ri, ij, kj -> r', MargVec, self.invCov[ii], deltaTD) +\
-            #     self.prior_term_F1i[ii]
-            # F2ij = np.einsum('ri, ij, mj -> rm', MargVec, self.invCov[ii], MargVec) +\
-            #     self.prior_cov_inv[ii]
+            if self.do_analytic_marg:
+                chi2_iz = self.compute_chi2_marg(deltaTD, MargVec,
+                                                 self.invCov[ii],
+                                                 self.prior_term_F0[ii],
+                                                 self.prior_term_F1i[ii],
+                                                 self.prior_cov_inv[ii])
+            elif self.do_jeffreys_priors:
+                chi2_iz = self.compute_chi2_jeffreys(deltaTD, MargVec,
+                                                     self.invCov[ii],
+                                                     self.prior_term_F0[ii],
+                                                     self.prior_term_F1i[ii],
+                                                     self.prior_cov_inv[ii],
+                                                     self.prior_vector[ii])
+            chi2 += chi2_iz
 
-            # chi2_iz = F0 + np.log(np.linalg.det(F2ij)) - \
-            #     np.einsum('i, ij, j ->', F1i, np.linalg.inv(F2ij), F1i)
+        if self.store_theorydict:
+            self.theorydict= theory_dict
+            print('Storing theorydict, althought it makes not much sense with analytical marginalization')
+        return chi2
+
+
+    def model_varied_cosmology_analytic_marg_multiz_withchi(self, params):
+        # Update full param dictionary with new param values
+        self.full_param_dict.update({key: value for key, value in
+                                     zip(self.varied_params, params)})
+        # Update derived parameters
+        parhandler.update_derived_parameters(self.prior_dictionary,
+                                             self.full_param_dict)
+        
+        # Regarding f, for the moment I treat chi as cold, then I will implement scale dependent suppression at small scales 
+        self.full_param_dict['Och2'] = self.full_param_dict['Och2'] + self.full_param_dict['Ochih2']
+
+        if self.do_AP:
+            alpha_par =  self.Hubble_adim_fid / \
+                self.Hubble_adim(self.z_bins, cosmo=self.full_param_dict)
+            alpha_perp = np.asarray(
+                [self.angular_diam_distance(iz, cosmo=self.full_param_dict)
+                 for iz in self.z_bins]) / self.angular_diam_distance_fid
+            self.full_param_dict['alpha_par'] = list(alpha_par)
+            self.full_param_dict['alpha_perp'] = list(alpha_perp)
+
+        theory_dict = {k: {} for k,i in enumerate(self.z_bins)}
+        marg_dict   = {k: {} for k,i in enumerate(self.z_bins)}
+        chi2 = 0
+
+        previous_z = None
+        for ii, iz in enumerate(self.z_bins):
+            zparams = {k: v[ii] if isinstance(v, list)
+                       else v for k, v in self.full_param_dict.items()}
+            
+            # Here I cannot use the simple rescaling that I have in LCDM, I will have to compute everything at every redshift
+            zparams['z'] = iz
+            zparams['D'] = 1.
+            zparams['f'] = self.growth_rate(iz, cosmo=zparams)
+
+            # Compute the Plinear and _Pgg_kmu_terms at the redshift of interest
+            # If it's the same as before (like boss ngc and sgc) can skip this
+            if iz != previous_z:
+                _, PL = self.linear_power_spectrum(linear=self.linear,
+                                           redshift=iz,
+                                           cosmo=zparams)
+                self.full_param_dict['PL'] = PL
+                zparams['PL'] = PL
+                if hasattr(self, 'do_pell'):
+                    self._Pgg_kmu_terms(cosmo=zparams, redshift=iz,
+                                    kind=self.IRresum_kind)
+                previous_z = iz
+            # print(zparams)
+            # Then do the bias expansion
+            Pell, Pell_marg = self.P_kmu_z_marg(
+                iz, True, AP_as_nuisance=True,
+                cosmo=zparams, Psn=self.Psn[ii],
+                kgrid=self.kPE, **zparams)
+
+            theory_dict[ii]['P0'] = Pell[0][self.IdxP[ii]]
+            theory_dict[ii]['P2'] = Pell[1][self.IdxP[ii]]
+            theory_dict[ii]['P4'] = Pell[2][self.IdxP4[ii]]
+
+            marg_dict[ii]['P0'] = np.asarray([Pell_marg[0+3*j,self.IdxP[ii]]
+                                              for j in self.index_marg_param])
+            marg_dict[ii]['P2'] = np.asarray([Pell_marg[1+3*j,self.IdxP[ii]]
+                                              for j in self.index_marg_param])
+            marg_dict[ii]['P4'] = np.asarray([Pell_marg[2+3*j,self.IdxP4[ii]]
+                                              for j in self.index_marg_param])
+
+            TheoryVec = np.concatenate([theory_dict[ii][obs] for obs in self.Obs])
+            MargVec = np.hstack([marg_dict[ii][obs] for obs in self.Obs])
+
+            deltaTD = np.atleast_2d(TheoryVec - np.concatenate(self.CutDataVecs[ii]))
 
             if self.do_analytic_marg:
                 chi2_iz = self.compute_chi2_marg(deltaTD, MargVec,
@@ -427,6 +507,8 @@ class PBJlikelihood:
             self.theorydict= theory_dict
             print('Storing theorydict, althought it makes not much sense with analytical marginalization')
         return chi2
+
+
 
     def model_BAO(self, params):
         # Update full param dictionary with new param values
