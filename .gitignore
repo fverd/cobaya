@@ -1,12 +1,15 @@
 # FRA
 chains/
 chains-fx/
+chains-grids/
+chains-ulysses/
 pbj-bisp_redshift_space/
 Slurm-output/
 FRA/Quijdata/
 FRA-ulysses-nosync/
 files_chiara/
 ulysses_runjob.sh
+scripts/*
 # Backups
 *~
 \#*

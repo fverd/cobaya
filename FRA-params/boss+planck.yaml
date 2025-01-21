@@ -36,6 +36,7 @@ likelihood:
 
       likelihood:
         observables: ['P0', 'P2'] # options: Pk, Bk, P0, P2, P4, B0, B2, B4
+        model: model_varied_cosmology_analytic_marg_multiz_withchi
         type: Gaussian # options: Gaussian, Hartlap, Sellentin
         cosmology: varied # options: fixed, varied
         do_analytic_marg: True
@@ -163,10 +164,10 @@ params:
 
 
 sampler:
-  # evaluate:
-  nautilus:
-    poolN: 72
+  evaluate:
+  # nautilus:
+    # poolN: 72
 
 # debug: True
 # timing: True
-output: chains/boss+planck/b+p
+output: chains/test/b+p

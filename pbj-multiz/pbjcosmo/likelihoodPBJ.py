@@ -427,8 +427,8 @@ class PBJlikelihood:
         parhandler.update_derived_parameters(self.prior_dictionary,
                                              self.full_param_dict)
         
-        # Regarding f, for the moment I treat chi as cold, then I will implement scale dependent suppression at small scales 
-        self.full_param_dict['Och2'] = self.full_param_dict['Och2'] + self.full_param_dict['Ochih2']
+        # Regarding f, for the moment I treat chi as Mnu, then I will implement scale dependent suppression at small scales 
+        self.full_param_dict['Mnu'] = self.full_param_dict['Ochih2'] * 93.14
 
         if self.do_AP:
             alpha_par =  self.Hubble_adim_fid / \
