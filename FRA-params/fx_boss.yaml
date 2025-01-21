@@ -62,6 +62,7 @@ likelihood:
 
       theory:
         linear: cobaya # options: camb, bacco, cobaya
+        scale_dependent_growth: True
         IRresum: True
         IRresum_kind: EH # options EH, DST
         do_redshift_rescaling: False
@@ -171,9 +172,9 @@ params:
 
 
 sampler:
-  # evaluate:
-  nautilus:
-    poolN: 70
+  evaluate:
+  # nautilus:
+  #   poolN: 70
 
 # debug: True
 output: chains-fx/test/chain

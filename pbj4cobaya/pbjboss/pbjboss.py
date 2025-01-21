@@ -102,7 +102,7 @@ class pbjboss(Likelihood):
                                                 self.pbjobj.prior_cov_inv, self.pbjobj.prior_vector)
 
         # Now deal with the required parameters
-        self.pbj_cosmo_pars=['h', 'Obh2', 'Och2', 'ns', 'As', 'tau',  'Mnu', 'Ochih2']
+        self.pbj_cosmo_pars=['h', 'Obh2', 'Och2', 'ns', 'As', 'tau',  'Mnu', 'Ochih2', 'acs_chi']
 
         # For the bias parameters check whether they are analytically marginalizes, otherwise add them to the requirements
         pbj_bias_pars=['b1', 'b2', 'bG2', 'bG3', 'c0', 'c2', 'aP', 'e0k2', 'e2k2', "Tcmb", "z"]
@@ -128,7 +128,8 @@ class pbjboss(Likelihood):
             return ds1dt
         t = np.linspace(-10,25, 3000)
         sol = odeint(s1_system, -3/5, t)
-        self.pbjobj.s_int = interp1d(t, sol[:, 0], fill_value='extrapolate')
+        self.pbjobj.g_c_int = interp1d(t, sol[:, 0], fill_value='extrapolate')
+        
 
     def initialize_data_boss(self):
         """

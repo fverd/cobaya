@@ -16,4 +16,4 @@
 export OMP_NUM_THREADS=$((${SLURM_CPUS_PER_TASK}/2))
 export RDMAV_FORK_SAFE=1
 
-cobaya-run FRA-params/fx_boss.yaml -o chains-fx/kJ0p05/chain -f
+cobaya-run FRA-params/fx_boss.yaml -o chains-fx/test/chain -f

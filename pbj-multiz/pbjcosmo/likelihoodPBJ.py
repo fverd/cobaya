@@ -427,8 +427,9 @@ class PBJlikelihood:
         parhandler.update_derived_parameters(self.prior_dictionary,
                                              self.full_param_dict)
         
-        # Regarding f, for the moment I treat chi as Mnu, then I will implement scale dependent suppression at small scales 
-        self.full_param_dict['Mnu'] = self.full_param_dict['Ochih2'] * 93.14
+        # Regarding the background quantities, treat chi as CDM. Then will put by hand scale dep suppression of the growth rate
+        self.full_param_dict['Och2'] += self.full_param_dict['Ochih2']
+        fx = self.full_param_dict['Ochih2']/(self.full_param_dict['Obh2']+self.full_param_dict['Och2']+self.full_param_dict['Ochih2'])
 
         if self.do_AP:
             alpha_par =  self.Hubble_adim_fid / \
@@ -451,8 +452,11 @@ class PBJlikelihood:
             # Here I cannot use the simple rescaling that I have in LCDM, I will have to compute everything at every redshift
             zparams['z'] = iz
             zparams['D'] = 1.
-            zparams['f'] = self.growth_rate(iz, cosmo=zparams)
-
+            f = self.growth_rate(iz, cosmo=zparams)
+            if self.scale_dependent_growth:
+                kJ0p5 = 0.0321*0.01/zparams['acs_chi'] #for the moment I just undo the acs_chi correspondance
+                f = f*(1+fx*self.g_c_int(-2*np.log(self.kPE/kJ0p5))) # for the moment instantaneous at z=0.5, then I will implement properly
+            zparams['f'] = f
             # Compute the Plinear and _Pgg_kmu_terms at the redshift of interest
             # If it's the same as before (like boss ngc and sgc) can skip this
             if iz != previous_z:
@@ -467,8 +471,8 @@ class PBJlikelihood:
                 previous_z = iz
             # print(zparams)
             # Then do the bias expansion
-            Pell, Pell_marg = self.P_kmu_z_marg(
-                iz, True, AP_as_nuisance=True,
+            Pell, Pell_marg = self.P_kmu_z_marg_scaledep(
+                iz, False, AP_as_nuisance=True,
                 cosmo=zparams, Psn=self.Psn[ii],
                 kgrid=self.kPE, **zparams)
 

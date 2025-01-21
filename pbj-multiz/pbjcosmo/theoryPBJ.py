@@ -94,8 +94,37 @@ class PBJtheory:
         PL_ext = PL[-1] / kcut[-1]**m * kext**m
         return kL, hstack((PL, PL_ext))
     
-    def call_bacco(self, npoints, kmin, kmax, redshift, cold=True, cosmo=None):
+# -------------------------------------------------------------------------------
 
+    def call_bacco(self, npoints, kmin, kmax, redshift, cold=True, cosmo=None):
+        """
+        Call to the BACCO linear emulator given a set cosmological
+        parameters.  By default, the P(k) is computed in 1000 points
+        from kmin=1e-4 to kmax=198.  To account for the k-cut of BACCO
+        (k_max = 50 h/Mpc), a linear extrapolation is implemented for
+        the log(P(k)).
+
+        Parameters
+        ----------
+        npoints : int, optional
+            Number of points to sample the power spectrum. Default is 1000.
+        kmin : float, optional
+            Minimum k value for the linear power spectrum. Default is 1e-4.
+        kmax : float, optional
+            Maximum k value for the linear power spectrum. Default is 198.
+        cold : bool, optional
+            Compute the cold matter power spectrum. Default is False.
+        cosmo : dict, optional
+            Cosmological parameters. Default is None, parameters are fixed and
+            read from the paramfile.
+
+        Returns
+        -------
+        kL : (npoints,) array
+            Wavenumber array.
+        PL : (npoints,) array
+            Linear power spectrum.
+        """
         if cosmo is not None:
             ns   = cosmo['ns'] if 'ns' in cosmo else self.ns
             As   = cosmo['As'] if 'As' in cosmo else self.As
@@ -104,8 +133,6 @@ class PBJtheory:
             Och2 = cosmo['Och2'] if 'Och2' in cosmo else self.Och2
             Mnu  = cosmo['Mnu'] if 'Mnu' in cosmo else self.Mnu
             tau  = cosmo['tau'] if 'tau' in cosmo else 0.0952
-            fx  = cosmo['fx'] if 'fx' in cosmo else 0.
-            kJ0p5  = cosmo['kJ0p5'] if 'kJ0p5' in cosmo else 0.
         else:
             ns   = self.ns
             As   = self.As
@@ -114,7 +141,6 @@ class PBJtheory:
             Och2 = self.Och2
             Mnu  = self.Mnu
             tau  = self.tau
-            fx = 0.
 
         params = {
             'ns'            : ns,
@@ -135,100 +161,12 @@ class PBJtheory:
         kcut = kL[where(kL <= 50)]
         kext = kL[where(kL > 50)]
         _, PL = self.emulator.get_linear_pk(k=kcut, cold=cold, **params)
-        # print('fx is', fx)
-
-        if fx>0.:
-            a0p5=1/(1+0.5)
-            aNR = 0.0321*0.01/kJ0p5
-            # compute growth factor for every k
-            Delta_logD_k=[]
-            for k in kcut:
-                te_ini_of_ak=np.log(aNR/a0p5) - 2*np.log(k/kJ0p5)
-                te_end_of_ak=np.log(1/(1+redshift)/a0p5) - 2*np.log(k/kJ0p5)
-                D_integral, _ = quad(self.s_int, te_ini_of_ak, te_end_of_ak,epsrel=1.e-2)
-                Delta_logD_k.append(D_integral)
-            Delta_D_bacco_from0 = np.exp(fx*np.array(Delta_logD_k)) 
-            PL = PL*Delta_D_bacco_from0**2
 
         # Extrapolation with power law
         m = math.log(PL[-1] / PL[-2]) / math.log(kcut[-1] / kcut[-2])
         PL_ext = PL[-1] / kcut[-1]**m * kext**m
 
         return kL, hstack((PL, PL_ext))
-    
-#-------------------------------------------------------------------------------
-
-    # def call_bacco(self, npoints, kmin, kmax, redshift, cold=True, cosmo=None):
-    #     """
-    #     Call to the BACCO linear emulator given a set cosmological
-    #     parameters.  By default, the P(k) is computed in 1000 points
-    #     from kmin=1e-4 to kmax=198.  To account for the k-cut of BACCO
-    #     (k_max = 50 h/Mpc), a linear extrapolation is implemented for
-    #     the log(P(k)).
-
-    #     Parameters
-    #     ----------
-    #     npoints : int, optional
-    #         Number of points to sample the power spectrum. Default is 1000.
-    #     kmin : float, optional
-    #         Minimum k value for the linear power spectrum. Default is 1e-4.
-    #     kmax : float, optional
-    #         Maximum k value for the linear power spectrum. Default is 198.
-    #     cold : bool, optional
-    #         Compute the cold matter power spectrum. Default is False.
-    #     cosmo : dict, optional
-    #         Cosmological parameters. Default is None, parameters are fixed and
-    #         read from the paramfile.
-
-    #     Returns
-    #     -------
-    #     kL : (npoints,) array
-    #         Wavenumber array.
-    #     PL : (npoints,) array
-    #         Linear power spectrum.
-    #     """
-    #     if cosmo is not None:
-    #         ns   = cosmo['ns'] if 'ns' in cosmo else self.ns
-    #         As   = cosmo['As'] if 'As' in cosmo else self.As
-    #         h    = cosmo['h'] if 'h' in cosmo else self.h
-    #         Obh2 = cosmo['Obh2'] if 'Obh2' in cosmo else self.Obh2
-    #         Och2 = cosmo['Och2'] if 'Och2' in cosmo else self.Och2
-    #         Mnu  = cosmo['Mnu'] if 'Mnu' in cosmo else self.Mnu
-    #         tau  = cosmo['tau'] if 'tau' in cosmo else 0.0952
-    #     else:
-    #         ns   = self.ns
-    #         As   = self.As
-    #         h    = self.h
-    #         Obh2 = self.Obh2
-    #         Och2 = self.Och2
-    #         Mnu  = self.Mnu
-    #         tau  = self.tau
-
-    #     params = {
-    #         'ns'            : ns,
-    #         'A_s'           : As,
-    #         'tau'           : tau,
-    #         'hubble'        : h,
-    #         'omega_baryon'  : Obh2/h/h,
-    #         'omega_cold'    : (Och2 + Obh2)/h/h, # This is Omega_cb!!!
-    #         'neutrino_mass' : Mnu,
-    #         'w0'            : -1,
-    #         'wa'            : 0,
-    #         'expfactor'     : 1/(1+redshift)
-    #     }
-
-    #     kL = logspace(log10(kmin), log10(kmax), npoints)
-
-    #     # The emulator only works up to k=50, so split the k vector
-    #     kcut = kL[where(kL <= 50)]
-    #     kext = kL[where(kL > 50)]
-    #     _, PL = self.emulator.get_linear_pk(k=kcut, cold=cold, **params)
-
-    #     # Extrapolation with power law
-    #     m = math.log(PL[-1] / PL[-2]) / math.log(kcut[-1] / kcut[-2])
-    #     PL_ext = PL[-1] / kcut[-1]**m * kext**m
-
-    #     return kL, hstack((PL, PL_ext))
 
 #-------------------------------------------------------------------------------
 
@@ -697,7 +635,7 @@ class PBJtheory:
         D, D0 = self.growth_factor(redshift, cosmo=cosmo)
         dhyp = hyp2f1(4./3, 2., 17./6, (Ocb - 1.) / Ocb * a**3)
         return 1. + (6./11) * a**4 / (D*D0) * (Ocb - 1.) / Ocb * dhyp
-
+        
 #-------------------------------------------------------------------------------
 
     def _get_growth_functions(self, redshift, f=None, D=None, cosmo=None):
@@ -1622,6 +1560,129 @@ class PBJtheory:
 
         return AP_ampl*Pell, AP_ampl*Pml
 
+#-------------------------------------------------------------------------------
+
+    def P_kmu_z_marg_scaledep(self, redshift, do_redshift_rescaling, kgrid=None, f=None,
+                     D=None, cosmo=None, AP_as_nuisance=False, alpha_par=1,
+                     alpha_perp=1, b1=1, b2=0, bG2=0, Psn=0, sigma_z=0, f_out=0,
+                     **kwargs):
+
+        if do_redshift_rescaling:
+            f, D =  self._get_growth_functions(redshift, f=f, D=D, cosmo=cosmo)
+        else:
+            f, D =  self._get_growth_functions(redshift, f=f, D=1, cosmo=cosmo)
+
+        DZ2 = D*D
+        DZ4 = D**4.
+
+        q = kgrid[:, newaxis]
+        nu = self.mu
+        AP_ampl = 1.
+
+        sigma_r = lightspeed_kms * sigma_z / (100*\
+                                              cosmology.Hubble_adim(redshift,
+                                                                    self.Om,
+                                                                    self.w0,
+                                                                    self.wa))
+
+        if self.do_AP:
+            q, nu, AP_ampl = self._apply_AP_distortions(kgrid, self.mu,
+                                                        redshift,
+                                                        cosmo,
+                                                        AP_as_nuisance,
+                                                        alpha_par, alpha_perp)
+
+        damping_syst = np.exp(-(q*nu*sigma_r)**2) * (1-f_out)**2
+
+        # Rescale wiggle and no-wiggle P(k), Sigma and Sigma2
+        Pnw_sub = self.Pnw_int(q) * DZ2
+        Pw_sub = self.Pw_int(q) * DZ2
+
+        Sigma2 = self.Sigma2 * DZ2 * self.IRres
+        dSigma2 = self.dSigma2 * DZ2 * self.IRres
+
+        # Rescaling loops
+        loop22_nw_sub =  self.loop22_nw_int(q) * DZ4
+        loop13_nw_sub =  self.loop13_nw_int(q) * DZ4
+        loop22_w =  self.loop22_w_int(q) * DZ4
+        loop13_w =  self.loop13_w_int(q) * DZ4
+
+        # Setup of f dimension in case of scale depent growth
+        if self.scale_dependent_growth:
+            f = f[:,newaxis]
+
+        Sig2mu, RSDdamp = self._muxdamp(q, nu, Sigma2, dSigma2, f)
+
+        # Next-to-leading order, counterterm, noise
+        PNLO = self.Kaiser(b1, f, nu)**2 * (Pnw_sub + RSDdamp * Pw_sub *
+                                                     (1. + q**2 * Sig2mu))
+
+        # Biases
+        bias22 = array([b1**2 * nu**0 * f**0, b1 * b2 * nu**0 * f**0, b1 * bG2 * nu**0 * f**0,
+                        b2**2 * nu**0 * f**0, b2 * bG2 * nu**0 * f**0, bG2**2 * nu**0 * f**0,
+                        nu**2 * f * b1, nu**2 * f * b2, nu**2 * f * bG2,
+                        (nu * f * b1)**2, (nu * b1)**2 * f,
+                        nu**2 * f * b1 * b2, nu**2 * f * b1 * bG2,
+                        (nu * f)**2 * b1, (nu * f)**2 * b2,
+                        (nu * f)**2 * bG2, (nu * f)**4, nu**4 * f**3,
+                        nu**4 * f**3 * b1, nu**4 * f**2 * b2,
+                        nu**4 * f**2 * bG2, nu**4 * f**2 * b1,
+                        nu**4 * f**2 * b1**2, nu**4 * f**2,
+                        nu**6 * f**4, nu**6 * f**3, nu**6 * f**3 * b1,
+                        nu**8 * f**4])
+        bias13 = array([b1 * self.Kaiser(b1, f, nu),
+                        0. * self.Kaiser(b1, f, nu),
+                        bG2 * self.Kaiser(b1, f, nu),
+                        nu**2 * f * self.Kaiser(b1, f, nu),
+                        nu**2 * f * b1 * self.Kaiser(b1, f, nu),
+                        (nu * f)**2 * self.Kaiser(b1, f, nu),
+                        nu**4 * f**2 * self.Kaiser(b1, f, nu)])
+
+        # Le dimensioni di 'ijl,ikl->kl' corrispondono a
+        # i : elementi della bias expansion
+        # j : boh
+        # k : wavenumbers (self.kPE)
+        # l : mu
+        # Use correct einsum
+        if self.scale_dependent_growth:
+            repl = 'ikl,ikl->kl'
+        else:
+            repl = 'ijl,ikl->kl'
+
+        Pkmu_22_nw = einsum(repl, bias22, loop22_nw_sub)
+        Pkmu_22_w  = einsum(repl, bias22, loop22_w)
+        Pkmu_13_nw = einsum(repl, bias13, loop13_nw_sub)
+        Pkmu_13_w  = einsum(repl, bias13, loop13_w)
+
+        Pkmu_22 = Pkmu_22_nw + RSDdamp * Pkmu_22_w
+        Pkmu_13 = Pkmu_13_nw + RSDdamp * Pkmu_13_w
+        Pkmu    = damping_syst * (PNLO + Pkmu_22 + Pkmu_13)
+
+        Pkmu_bG3 = damping_syst * (self.Kaiser(b1, f, nu) * loop13_nw_sub[1] +
+                                   RSDdamp*self.Kaiser(b1, f, nu) * loop13_w[1])
+        Pkmu_ctr = damping_syst * (q**2 * (Pnw_sub + RSDdamp * Pw_sub))
+
+        Pell   = cosmology.multipole_projection(self.mu, Pkmu, [0,2,4])
+
+        PG3ell = cosmology.multipole_projection(self.mu, Pkmu_bG3, [0,2,4])
+        Pc0    = cosmology.multipole_projection(self.mu, -2.* Pkmu_ctr, [0,2,4])
+        Pc2    = cosmology.multipole_projection(
+            self.mu, -2.* f * nu**2 * Pkmu_ctr, [0,2,4])
+        Pc4    = cosmology.multipole_projection(
+            self.mu, -2.* f**2 * nu**4 * Pkmu_ctr, [0,2,4])
+        Pck4   = cosmology.multipole_projection(
+            self.mu,
+            f**4 * nu**4 * self.Kaiser(b1, f, nu)**2 * q**2 *Pkmu_ctr,
+            [0,2,4])
+
+        Pa = cosmology.multipole_projection(self.mu, np.full(q.shape, Psn), [0,2,4])
+        Pe0k2  = cosmology.multipole_projection(self.mu, Psn*q**2, [0,2,4])
+        Pe2k2  = cosmology.multipole_projection(
+            self.mu, Psn*q**2 * nu**2, [0,2,4])
+        Pml = concatenate((PG3ell, Pc0, Pc2, Pc4, Pck4, Pa, Pe0k2, Pe2k2))
+
+        return AP_ampl*Pell, AP_ampl*Pml
+    
 #-------------------------------------------------------------------------------
 
     def Pgg_BAO_l(self, redshift, kgrid=None, b1=1, alpha_par=1, alpha_perp=1,

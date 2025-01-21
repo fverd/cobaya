@@ -43,6 +43,10 @@ class Pbj(PBJtheory, PBJtemplates, PBJlikelihood, PBJsampler):
         except: self.linear = 'camb'
         print("\033[1;32m[info] \033[00m"+\
               "The linear power spectrum will be computed with "+self.linear)
+        
+        try: self.scale_dependent_growth = Dict['theory']['scale_dependent_growth']
+        except: self.scale_dependent_growth = False
+        if self.scale_dependent_growth: print("\033[1;32m[info] \033[00m Using scale dependent f")
         # Load the linear emulator
         if "baccoemu" in sys.modules:
             self.emulator = baccoemu.Matter_powerspectrum(linear=True,

@@ -4,7 +4,7 @@ groups: # the list of groups sub-grids to run
       - Mnu0p1
       - kJ0p45
       - kJ2
-      - kJ10
+      - kJ200
     datasets:
       - boss
 
@@ -20,9 +20,17 @@ models:
   kJ2:
     params:
       kJ0p5: 2.
-  kJ10:
+  kJ200:
     params:
-      kJ0p5: 10.
+      kJ0p5: 200.
+      omega_chi:
+        prior:
+          min: 0.0
+          max: 0.15
+      omega_cdm:
+        prior:
+          min: 0.0
+          max: 0.15
 
 datasets:
   boss:
@@ -79,6 +87,7 @@ datasets:
 
           theory:
             linear: cobaya # options: camb, bacco, cobaya
+            scale_dependent_growth: True
             IRresum: True
             IRresum_kind: EH # options EH, DST
             do_redshift_rescaling: False
@@ -117,12 +126,12 @@ defaults:
     omega_chi:
       prior:
         min: 0.0
-        max: 0.06
+        max: 0.03
       latex: \Omega_\chi h^2
 
     omega_cdm:
       prior:
-        min: 0.06
+        min: 0.08
         max: 0.16
       latex: \Omega_\mathrm{c} h^2
 
