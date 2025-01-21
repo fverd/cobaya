@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --job-name=boss_k0p05
+#SBATCH --job-name=testimpl
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=fverdian@sissa.it
@@ -16,4 +16,4 @@
 export OMP_NUM_THREADS=$((${SLURM_CPUS_PER_TASK}/2))
 export RDMAV_FORK_SAFE=1
 
-cobaya-run FRA-params/fx_boss.yaml -o chains-fx/test/chain -f
+cobaya-run FRA-params/pbj_boss_b1only.yaml -f

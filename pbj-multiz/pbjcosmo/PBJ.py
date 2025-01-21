@@ -195,8 +195,15 @@ class Pbj(PBJtheory, PBJtemplates, PBJlikelihood, PBJsampler):
             self.AP_as_nuisance = Dict.get('AP', {}).get('AP_as_nuisance', False)
 
             if self.AP_as_nuisance==False:
+
+                self.FiducialCosmo = Dict['AP']['fiducial_cosmology']
                 try:
-                    self.FiducialCosmo = Dict['AP']['fiducial_cosmology']
+                    #Take this values from the fiducial rather from the Input
+                    for entry in self.FiducialCosmo.keys():
+                        setattr(self, entry, self.FiducialCosmo[entry])
+                    self.Omh2 = self.Obh2 + self.Och2 + self.Mnu/93.14
+                    self.Om = self.Omh2/self.h**2
+
                     if hasattr(self, 'z_bins'):
                         self._set_fiducials_for_AP(self.z_bins, self.FiducialCosmo)
                     else:

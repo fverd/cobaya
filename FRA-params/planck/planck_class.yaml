@@ -6,8 +6,6 @@ theory:
       N_ncdm: 1
       N_ur: 2.0328
     ignore_obsolete: True
-    params:
-      omega_cdm:
 
 likelihood:
   planck_2018_lowl.TT: null
@@ -51,12 +49,12 @@ params:
     latex: \tau_\mathrm{reio}
   m_ncdm:
     value: 0.06
-    renames: mnu
     
 sampler:
-  nautilus:
-    poolN: 42
+  evaluate:
+  # nautilus:
+  #   poolN: 42
 
-output: chains/planck_class/planck
+output: chains/test/planck
 
 # debug: True

@@ -27,15 +27,13 @@ class pbjboss(Likelihood):
             sys.path.pop(0)
 
         # Start building the PBJ init dictionary
+        if not hasattr(self, 'pbj_Dict'):
+            # Take the provided dictionary and build the PBJ one
+            pbj_keys = ['redshift_bins', 'data_folder', 'data_files', 'covariance', 'SN', 'AP', 'likelihood', 'marg_params', 'theory', 'input_cosmology']
+            self.pbj_Dict = {key: getattr(self, key, None) for key in pbj_keys}
+
         self.pbjobj = self.pbj.Pbj(self.pbj_Dict)
 
-        # Set some standard vals 
-        # for entry in self.pbj_Dict['AP']['fiducial_cosmology'].keys():
-        #     setattr(self.pbjobj, entry, self.pbj_Dict['AP']['fiducial_cosmology'][entry])
-        # self.pbjobj.Omh2 = self.pbjobj.Obh2 + self.pbjobj.Och2 + self.pbjobj.Mnu/93.14
-        # self.pbjobj.Om = self.pbjobj.Omh2/self.pbjobj.h**2
-        
-        # Initialize the boss data as provided by the files
         self.initialize_data_boss()
 
         # Cut the P vectors
@@ -222,6 +220,9 @@ class pbjboss(Likelihood):
     def h_an(self, t):
         return 1 + 3 * np.sqrt(3 / 2) * np.exp(-3 * t / 2) * np.pi * np.cos(np.sqrt(6) * np.exp(-t / 2)) - 3 * np.exp(-t) * np.cos(np.sqrt(6) * np.exp(-t / 2))**2 + 3 * np.sqrt(6) * np.exp(-3 * t / 2) * sici(np.sqrt(6) * np.exp(-t / 2))[1] * np.sin(np.sqrt(6) * np.exp(-t / 2)) - 3 * np.sqrt(6) * np.exp(-3 * t / 2) * np.sin(np.sqrt(6) * np.exp(-t / 2)) * np.sinc(np.sqrt(6) * np.exp(-t / 2) / np.pi) - 3 * np.sqrt(6) * np.exp(-3 * t / 2) * np.cos(np.sqrt(6) * np.exp(-t / 2)) * sici(np.sqrt(6) * np.exp(-t / 2))[0]
     
+    def get_can_support_params(self):
+        return self.pbj_vary_bias_pars
+    
     def get_requirements(self):
         requirements = {}
         if self.pbj_Dict['theory']['linear'] == 'cobaya':
@@ -229,7 +230,7 @@ class pbjboss(Likelihood):
             for k in self.pbj_vary_bias_pars:
                 requirements[k] = None
         else:
-            for k in self.pbj_allpars: # if PBJ hanles the Plin computation
+            for k in self.pbj_cosmo_pars: # if PBJ hanles the Plin computation
                 if k in self.renames.values():
                     for v in self.renames:
                         if self.renames[v] == k:

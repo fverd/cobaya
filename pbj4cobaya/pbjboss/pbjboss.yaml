@@ -1,10 +1,94 @@
-pbj_path: 
-data_path:
-pbj_Dict:
-k_max: 
 params:
-  Ochih2: 0.
+  b1_ngc_z1:
+    prior:
+      min: 1
+      max: 3
+
+  b1_sgc_z1:
+    prior:
+      min: 1
+      max: 3
+
+  b1_ngc_z3:
+    prior:
+      min: 1
+      max: 3
+
+  b1_sgc_z3:
+    prior:
+      min: 1
+      max: 3
+
+  b1: 
+    value: "lambda b1_ngc_z1, b1_sgc_z1, b1_ngc_z3, b1_sgc_z3: [b1_ngc_z1, b1_sgc_z1, b1_ngc_z3, b1_sgc_z3]"
+    derived: False
+    latex: b_1
+    drop: True
+  b2: 0.
+  bG2: 0.
   Mnu: 0.
+  acs_chi: 1.
+  omega_chi: 0.
+  z: 0.5
+  Tcmb: 2.7255
+  w0: -1.
+  wa: 0.
+  Ok: 0.
+
+k_max: [0.2, 0.2, 0.2, 0.2]
+redshift_bins: [0.38, 0.38, 0.61, 0.61]
+data_folder: /home/fverdian/cobaya/pbj4cobaya/pbjboss/data/boss/
+data_files: [pk_boss_ngc_z1_fkp.txt, pk_boss_sgc_z1_fkp.txt, pk_boss_ngc_z3_fkp.txt, pk_boss_sgc_z3_fkp.txt]
+covariance:
+  type: covariance # options: covariance, variance
+  file: [C_P0P2_patchy_ngc_z1.txt, C_P0P2_patchy_sgc_z1.txt, C_P0P2_patchy_ngc_z3.txt, C_P0P2_patchy_sgc_z3.txt]
+
+SN: [3333.3, 3333.3, 3333.3, 3333.3]
+
+
+AP:
+  do_AP: True
+  fiducial_cosmology:
+    h: 0.676
+    Obh2: 0.022
+    Och2: 0.1190
+    Mnu: 0.06
+    w0: -1.
+    wa: 0.
+    Ok: 0.
+
+likelihood:
+  observables: ['P0', 'P2'] # options: Pk, Bk, P0, P2, P4, B0, B2, B4
+  model: model_varied_cosmology_analytic_marg_multiz
+  type: Gaussian # options: Gaussian, Hartlap, Sellentin
+  cosmology: varied # options: fixed, varied
+  do_analytic_marg: True
+  # store_theorydict: True
+marg_params: 
+  bG3:
+    mean: [0., 0., 0., 0.]
+    sigma: [1., 1., 1., 1.]
+  c0:
+    mean: [0., 0., 0., 0.]
+    sigma: [30., 30., 30., 30.]
+  c2:
+    mean: [30., 30., 30., 30.]
+    sigma: [30., 30., 30., 30.]
+  aP:
+    mean: [0., 0., 0., 0.]
+    sigma: [2., 2., 2., 2.]
+  e0k2:
+    mean: [0., 0., 0., 0.]
+    sigma: [2., 2., 2., 2.]
+  e2k2:
+    mean: [0., 0., 0., 0.]
+    sigma: [2., 2., 2., 2.]
+
+theory:
+  linear: cobaya # options: camb, bacco
+  IRresum: True
+  IRresum_kind: EH # options EH, DST
+  do_redshift_rescaling: False
 
 renames:
   omega_b: Obh2
@@ -13,3 +97,6 @@ renames:
   A_s: As
   n_s: ns
   tau_reio: tau
+
+pbj_path: 
+data_path:
