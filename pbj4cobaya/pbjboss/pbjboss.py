@@ -226,7 +226,7 @@ class pbjboss(Likelihood):
     def get_requirements(self):
         requirements = {}
         if self.pbj_Dict['theory']['linear'] == 'cobaya':
-            requirements['Pk_interpolator']= {'k_max': 5., 'z': [0., 0.38, 0.61], 'nonlinear': False}
+            requirements['Pk_interpolator']= {"vars_pairs": (self.which_Plin, self.which_Plin),'k_max': 5., 'z': [0., 0.38, 0.61], 'nonlinear': False}
             for k in self.pbj_vary_bias_pars:
                 requirements[k] = None
         else:
@@ -253,7 +253,7 @@ class pbjboss(Likelihood):
         parvals = [all_param_values[self.translate_param(k)] for k in self.pbj_allpars]
 
         if self.pbj_Dict['theory']['linear'] == 'cobaya':
-            self.pbjobj.cobaya_provider_Pk_interpolator = self.provider.get_Pk_interpolator(("delta_tot", "delta_tot"), nonlinear=False)
+            self.pbjobj.cobaya_provider_Pk_interpolator = self.provider.get_Pk_interpolator((self.which_Plin, self.which_Plin), nonlinear=False)
         chi2r = self.pbjobj.model_function(parvals)
 
         lnL = -0.5*chi2r

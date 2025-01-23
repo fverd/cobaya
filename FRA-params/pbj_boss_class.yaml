@@ -8,80 +8,16 @@ theory:
     stop_at_error: True
 
 likelihood:
-
   pbjboss:
     python_path: pbj4cobaya/
     pbj_path: pbj-multiz/
-    k_max: [0.2, 0.2, 0.2, 0.2]
     stop_at_error: True
-
-    pbj_Dict:
-
-      redshift_bins: [0.38, 0.38, 0.61, 0.61]
-
-      data_folder: /home/fverdian/cobaya/pbj4cobaya/pbjboss/data/boss/
-      data_files: [pk_boss_ngc_z1_fkp.txt, pk_boss_sgc_z1_fkp.txt, pk_boss_ngc_z3_fkp.txt, pk_boss_sgc_z3_fkp.txt]
-      covariance:
-        type: covariance # options: covariance, variance
-        file: [C_P0P2_patchy_ngc_z1.txt, C_P0P2_patchy_sgc_z1.txt, C_P0P2_patchy_ngc_z3.txt, C_P0P2_patchy_sgc_z3.txt]
-
-      SN: [3333.3, 3333.3, 3333.3, 3333.3]
-      AP:
-        do_AP: True
-        fiducial_cosmology:
-          h: 0.676
-          Obh2: 0.022
-          Och2: 0.1190
-
-      likelihood:
-        observables: ['P0', 'P2'] # options: Pk, Bk, P0, P2, P4, B0, B2, B4
-        type: Gaussian # options: Gaussian, Hartlap, Sellentin
-        cosmology: varied # options: fixed, varied
-        do_analytic_marg: True
-        # store_theorydict: True
-      marg_params: 
-        bG3:
-          mean: [0., 0., 0., 0.]
-          sigma: [1., 1., 1., 1.]
-        c0:
-          mean: [0., 0., 0., 0.]
-          sigma: [30., 30., 30., 30.]
-        c2:
-          mean: [30., 30., 30., 30.]
-          sigma: [30., 30., 30., 30.]
-        aP:
-          mean: [0., 0., 0., 0.]
-          sigma: [2., 2., 2., 2.]
-        e0k2:
-          mean: [0., 0., 0., 0.]
-          sigma: [2., 2., 2., 2.]
-        e2k2:
-          mean: [0., 0., 0., 0.]
-          sigma: [2., 2., 2., 2.]
-
-      theory:
-        linear: cobaya # options: camb, bacco, cobaya
-        IRresum: True
-        IRresum_kind: EH # options EH, DST
-        do_redshift_rescaling: False
-
-      input_cosmology: # to initialise base quantities
-        h: 0.676
-        Obh2: 0.022
-        Och2: 0.1190
-        ns: 0.9624
-        As: 2.13e-09
-        As_Asfid: 1.0
-        tau: 0.0925
-        Tcmb: 2.725
-        Mnu: 0.
-        z: 0.5
-    renames:
-      omega_b: Obh2
-      omega_cdm: Och2
-      A_s: As
-      n_s: ns
-      tau_reio: tau
+    theory:
+      linear: cobaya 
+      IRresum: True
+      IRresum_kind: EH # options EH, DST
+      do_redshift_rescaling: False
+    which_Plin: delta_nonu # options delta_tot, delta_nonu (i.e. cb)
 
 params:
 
@@ -115,57 +51,16 @@ params:
     value: 'lambda logA: 1e-10*np.exp(logA)'
     latex: A_\mathrm{s}
 
-  n_s:
-    prior:
-      dist: norm
-      loc: 0.9649
-      scale: 0.0042
-    latex: n_s
+  n_s: 0.9649
+  tau_reio: 0.0544
 
-  b1_ngc_z1:
-    prior:
-      min: 1
-      max: 3
-    drop: True
-
-  b1_sgc_z1:
-    prior:
-      min: 1
-      max: 3
-    drop: True
-
-  b1_ngc_z3:
-    prior:
-      min: 1
-      max: 3
-    drop: True
-
-  b1_sgc_z3:
-    prior:
-      min: 1
-      max: 3
-    drop: True
-
-  b1: 
-    value: "lambda b1_ngc_z1, b1_sgc_z1, b1_ngc_z3, b1_sgc_z3: [b1_ngc_z1, b1_sgc_z1, b1_ngc_z3, b1_sgc_z3]"
-    derived: False
-    latex: b_1
-  b2: 0.
-  bG2: 0.
-  # fx: 0.
-  # kJ0p5: 0.
-  # omega_b: 0.0220684
-  tau_reio: 0.0925
-  Mnu: 0.
-  z: 0.5
-  Tcmb: 2.7255
 
 
 sampler:
-  # evaluate:
-  nautilus:
-    poolN: 72
+  evaluate:
+  # nautilus:
+  #   poolN: 72
 
 # debug: True
-# timing: True
-output: chains/boss_class/bossclasspbj
+timing: True
+output: chains/test/bossclasspbj

@@ -89,6 +89,8 @@ theory:
   IRresum: True
   IRresum_kind: EH # options EH, DST
   do_redshift_rescaling: False
+  
+which_Plin: delta_tot
 
 renames:
   omega_b: Obh2

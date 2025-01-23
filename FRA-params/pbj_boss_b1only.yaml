@@ -44,11 +44,12 @@ params:
   n_s: 0.9649
   tau_reio: 0.0544
 
+
 # debug: True
 timing: True
 sampler:
-  # evaluate:
-  nautilus:
-    poolN: 70
+  evaluate:
+  # nautilus:
+  #   poolN: 70
 
-output: chains/testnewimpl/bossb1
+output: chains/test/bossb1
