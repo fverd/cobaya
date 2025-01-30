@@ -81,8 +81,8 @@ class nautilus(Sampler):
             if(sampled_params_info[p].get("prior").get("dist"))=='norm':
                 ploc=sampled_params_info[p].get("prior").get('loc')
                 pscale=sampled_params_info[p].get("prior").get('scale')
-                self.mpi_info(f'Wide flat prior of 4sigma for {p}: (mu={ploc}, sigma={pscale})')
-                self.naut_flat_prior.add_parameter(p, dist=(ploc-4*pscale, ploc+4*pscale))
+                self.mpi_info(f'Wide flat prior of 3sigma for {p}: (mu={ploc}, sigma={pscale})')
+                self.naut_flat_prior.add_parameter(p, dist=(ploc-3*pscale, ploc+3*pscale))
             else:
                 pmin=sampled_params_info[p].get("prior").get('min')
                 pmax=sampled_params_info[p].get("prior").get('max')

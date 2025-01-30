@@ -26,9 +26,8 @@ params:
     drop: True
   b2: 0.
   bG2: 0.
+  br: 0.
   Mnu: 0.
-  acs_chi: 1.
-  omega_chi: 0.
   z: 0.5
   Tcmb: 2.7255
   w0: -1.

@@ -1,0 +1,118 @@
+theory:
+  classy:
+    extra_args:
+      N_ncdm: 0.
+      N_ur: 3.046
+      non_linear: False
+      tol_shooting_deltax: 1e-4
+      tol_shooting_deltaF: 1e-4
+      scf_parameters : '0.05,0.0' ## note: if Omega_scf is set, the parameter entry corresponding to scf_tuning_index is ignored and used for shooting.
+      scf_tuning_index: 0  # in this example, we shoot over theta_ini in order to adjust Omega_scf.
+      scf_evolve_as_fluid: ye  # if set to yes, will switch for fluid when threshold_scf_fluid_m_over_H is met
+      scf_evolve_like_axionCAMB: ye  # fluid all the time in perts, the option no is currently bugging, to be debugged
+      threshold_scf_fluid_m_over_H: 3  # threshold_scf_fluid_m_over_H controls when to switch to fluid
+      do_shooting: ye  # controls shooting in general; e.g. theta_s
+      do_shooting_scf: ye  # necessary when log10_axion_ac & log10_fraction_axion_ac are chosen
+      scf_has_perturbations: ye  # for pedagogical purposes only
+      use_big_theta_scf: no  # in perts with the fluid it is often more stable to follow the heat flux rather "Big Theta=(1+w)*Theta" than the velocity divergence "Theta"
+      use_delta_scf_over_1plusw: no
+      attractor_ic_scf: no  # some specific IC for tracker potentials
+      evolver: 0
+
+      scf_potential: axion
+      n_axion: 1
+      f_axion: 0.4  # in units of mpl
+
+    stop_at_error: True
+    ignore_obsolete: True
+
+
+likelihood:
+  planck_2018_lowl.TT: null
+  planck_2018_lowl.EE: null
+  planck_2018_highl_plik.TTTEEE_lite_native: null
+
+  pbjboss:
+    python_path: pbj4cobaya/
+    pbj_path: pbj-multiz/
+    stop_at_error: True
+    theory:
+      linear: cobaya 
+      scale_dependent_growth: True
+      IRresum: True
+      IRresum_kind: EH # options EH, DST
+      do_redshift_rescaling: False
+    likelihood:
+      observables: ['P0', 'P2'] # options: Pk, Bk, P0, P2, P4, B0, B2, B4
+      model: model_varied_cosmology_analytic_marg_multiz
+      type: Gaussian # options: Gaussian, Hartlap, Sellentin
+      cosmology: varied # options: fixed, varied
+      do_analytic_marg: True
+      # store_theorydict: True
+    which_Plin: delta_nonu # options delta_tot, delta_nonu (i.e. cb)
+
+params:
+
+  omega_scf:
+    prior:
+      min: 0.0
+      max: 0.04
+    latex: \Omega_{a} h^2
+    drop: True
+
+  Omega_scf:
+    value: 'lambda omega_scf, h: omega_scf/h/h'
+
+
+  omega_cdm:
+    prior:
+      min: 0.08
+      max: 0.16
+    latex: \Omega_\mathrm{c} h^2
+
+  m_axion_eV: 
+    value: 1.e-26
+    drop: True
+
+  m_axion:
+    value: 'lambda m_axion_eV, h: m_axion_eV*1.56e29/3.336e-04/h'
+
+  kJ0p5:
+    value: 'lambda h ,m_axion_eV: np.sqrt(3.336e-04 * h * m_axion_eV * 1.56e29)/h * (0.6666)**0.25'
+
+  h:
+    prior:
+      min: 0.63
+      max: 0.75
+    latex: h
+
+  omega_b:
+    prior:
+      dist: norm
+      loc: 0.02268
+      scale: 0.00038
+    latex: \Omega_\mathrm{b} h^2
+
+
+  logA:
+    prior:
+      min: 2.
+      max: 3.8
+    latex: \log(10^{10} A_\mathrm{s})
+    drop: True
+
+  A_s:
+    value: 'lambda logA: 1e-10*np.exp(logA)'
+    latex: A_\mathrm{s}
+
+  n_s: 0.9649
+  tau_reio: 0.0544
+
+
+sampler:
+  # evaluate:
+  nautilus:
+    poolN: 72
+
+# debug: True
+output: chains/test/chain

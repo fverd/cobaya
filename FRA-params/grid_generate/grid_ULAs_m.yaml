@@ -1,0 +1,165 @@
+groups: # the list of groups sub-grids to run
+  main:
+    models:
+      - m24
+      - m25
+      - m26
+      - m27
+      - m28
+      - m29
+      - m30
+
+    datasets:
+      - boss
+
+models:
+
+  m24:
+    params:
+      m_ax_eV: 1.e-24
+      omega_chi:
+        prior:
+          min: 0.0
+          max: 0.16
+      omega_cdm:
+        prior:
+          min: 0.0
+          max: 0.16
+
+  m25:
+    params:
+      m_ax_eV: 1.e-25
+      omega_chi:
+        prior:
+          min: 0.0
+          max: 0.16
+      omega_cdm:
+        prior:
+          min: 0.0
+          max: 0.16
+
+  m26:
+    params:
+      m_ax_eV: 1.e-26
+  m27:
+    params:
+      m_ax_eV: 1.e-27
+  m28:
+    params:
+      m_ax_eV: 1.e-28
+
+  m29:
+    params:
+      m_ax_eV: 1.e-29
+      omega_chi:
+        prior:
+          min: 0.0
+          max: 0.08
+      omega_cdm:
+        prior:
+          min: 0.04
+          max: 0.16
+
+  m30:
+    params:
+      m_ax_eV: 1.e-30
+      omega_chi:
+        prior:
+          min: 0.0
+          max: 0.08
+      omega_cdm:
+        prior:
+          min: 0.04
+          max: 0.16
+
+
+datasets:
+  boss:
+    likelihood:
+      pbjboss:
+        python_path: pbj4cobaya/
+        pbj_path: pbj-multiz/
+        stop_at_error: True
+        theory:
+          linear: cobaya 
+          scale_dependent_growth: True
+          IRresum: True
+          IRresum_kind: EH # options EH, DST
+          do_redshift_rescaling: False
+        likelihood:
+          observables: ['P0', 'P2'] # options: Pk, Bk, P0, P2, P4, B0, B2, B4
+          model: model_varied_cosmology_analytic_marg_multiz_withchi
+          type: Gaussian # options: Gaussian, Hartlap, Sellentin
+          cosmology: varied # options: fixed, varied
+          do_analytic_marg: True
+          # store_theorydict: True
+        which_Plin: delta_nonu # options delta_tot, delta_nonu (i.e. cb)
+    
+
+defaults:
+  theory:
+    classy:
+      extra_args:
+        N_ncdm: 0.
+        N_ur: 3.046
+        gauge: newtonian
+        non_linear: False
+      ignore_obsolete: True
+      stop_at_error: False
+  params:
+    omega_chi:
+      prior:
+        min: 0.0
+        max: 0.04
+      latex: \Omega_\chi h^2
+
+    omega_cdm:
+      prior:
+        min: 0.08
+        max: 0.16
+      latex: \Omega_\mathrm{c} h^2
+
+    m_ax_eV: 
+      value: 1.e-26
+      drop: True
+
+    m_ax:
+      value: 'lambda m_ax_eV: m_ax_eV*1.56e29'
+
+    acs_chi: 1. #placeholder
+    kJ0p5:
+      value: 'lambda h ,m_ax_eV: np.sqrt(3.336e-04 * h * m_ax_eV * 1.56e29)/h * (0.6666)**0.25'
+
+    h:
+      prior:
+        min: 0.63
+        max: 0.75
+      latex: h
+
+    omega_b:
+      prior:
+        dist: norm
+        loc: 0.02268
+        scale: 0.00038
+      latex: \Omega_\mathrm{b} h^2
+
+
+    logA:
+      prior:
+        min: 2.
+        max: 3.8
+      latex: \log(10^{10} A_\mathrm{s})
+      drop: True
+
+    A_s:
+      value: 'lambda logA: 1e-10*np.exp(logA)'
+      latex: A_\mathrm{s}
+
+    n_s: 0.9649
+    tau_reio: 0.0925
+
+
+
+  sampler:
+    nautilus:
+      poolN: 72

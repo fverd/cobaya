@@ -454,8 +454,8 @@ class PBJlikelihood:
             zparams['D'] = 1.
             f = self.growth_rate(iz, cosmo=zparams)
             if self.scale_dependent_growth:
-                kJ0p5 = 0.0321*0.01/zparams['acs_chi'] #for the moment I just undo the acs_chi correspondance
-                f = f*(1+fx*self.g_c_int(-2*np.log(self.kPE/kJ0p5))) # for the moment instantaneous at z=0.5, then I will implement properly
+                self.kJ0p5 = zparams['kJ0p5'] #for the moment I just undo the acs_chi correspondance
+                f = f*(1+fx*self.g_c_int(-2*np.log(self.kPE/self.kJ0p5))) # for the moment instantaneous at z=0.5, then I will implement properly
             zparams['f'] = f
             # Compute the Plinear and _Pgg_kmu_terms at the redshift of interest
             # If it's the same as before (like boss ngc and sgc) can skip this
@@ -471,7 +471,7 @@ class PBJlikelihood:
                 previous_z = iz
             # print(zparams)
             # Then do the bias expansion
-            Pell, Pell_marg = self.P_kmu_z_marg_scaledep(
+            Pell, Pell_marg = self.P_kmu_z_marg_scaledep_withchi(
                 iz, False, AP_as_nuisance=True,
                 cosmo=zparams, Psn=self.Psn[ii],
                 kgrid=self.kPE, **zparams)

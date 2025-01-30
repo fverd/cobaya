@@ -1560,6 +1560,131 @@ class PBJtheory:
 
         return AP_ampl*Pell, AP_ampl*Pml
 
+# ----------------------------------------------------------------------------
+
+    def P_kmu_z_marg_scaledep_withchi(self, redshift, do_redshift_rescaling, kgrid=None, f=None,D=None, cosmo=None, AP_as_nuisance=False, alpha_par=1,
+                     alpha_perp=1, b1=1, b2=0, bG2=0, Psn=0, sigma_z=0, f_out=0, br = 0.,
+                     **kwargs):
+
+        if do_redshift_rescaling:
+            f, D =  self._get_growth_functions(redshift, f=f, D=D, cosmo=cosmo)
+        else:
+            f, D =  self._get_growth_functions(redshift, f=f, D=1, cosmo=cosmo)
+
+        DZ2 = D*D
+        DZ4 = D**4.
+
+        q = kgrid[:, newaxis]
+        nu = self.mu
+        AP_ampl = 1.
+
+        sigma_r = lightspeed_kms * sigma_z / (100*\
+                                              cosmology.Hubble_adim(redshift,
+                                                                    self.Om,
+                                                                    self.w0,
+                                                                    self.wa))
+
+        if self.do_AP:
+            q, nu, AP_ampl = self._apply_AP_distortions(kgrid, self.mu,
+                                                        redshift,
+                                                        cosmo,
+                                                        AP_as_nuisance,
+                                                        alpha_par, alpha_perp)
+
+        damping_syst = np.exp(-(q*nu*sigma_r)**2) * (1-f_out)**2
+
+        # Rescale wiggle and no-wiggle P(k), Sigma and Sigma2
+        Pnw_sub = self.Pnw_int(q) * DZ2
+        Pw_sub = self.Pw_int(q) * DZ2
+
+        Sigma2 = self.Sigma2 * DZ2 * self.IRres
+        dSigma2 = self.dSigma2 * DZ2 * self.IRres
+
+        # Rescaling loops
+        loop22_nw_sub =  self.loop22_nw_int(q) * DZ4
+        loop13_nw_sub =  self.loop13_nw_int(q) * DZ4
+        loop22_w =  self.loop22_w_int(q) * DZ4
+        loop13_w =  self.loop13_w_int(q) * DZ4
+
+        # Setup of f dimension in case of scale depent growth
+        if self.scale_dependent_growth:
+            f = f[:,newaxis]
+
+        Sig2mu, RSDdamp = self._muxdamp(q, nu, Sigma2, dSigma2, f)
+
+        def chiKaiser( b1, f, mu, br):
+            return b1 + br*b1*(self.g_an(-2*np.log(self.kPE/self.kJ0p5)))[:,newaxis] + f * mu**2
+        
+        # Next-to-leading order, counterterm, noise
+        PNLO = chiKaiser(b1, f, nu, br)**2 * (Pnw_sub + RSDdamp * Pw_sub *
+                                                     (1. + q**2 * Sig2mu))
+
+        # Biases
+        bias22 = array([b1**2 * nu**0 * f**0, b1 * b2 * nu**0 * f**0, b1 * bG2 * nu**0 * f**0,
+                        b2**2 * nu**0 * f**0, b2 * bG2 * nu**0 * f**0, bG2**2 * nu**0 * f**0,
+                        nu**2 * f * b1, nu**2 * f * b2, nu**2 * f * bG2,
+                        (nu * f * b1)**2, (nu * b1)**2 * f,
+                        nu**2 * f * b1 * b2, nu**2 * f * b1 * bG2,
+                        (nu * f)**2 * b1, (nu * f)**2 * b2,
+                        (nu * f)**2 * bG2, (nu * f)**4, nu**4 * f**3,
+                        nu**4 * f**3 * b1, nu**4 * f**2 * b2,
+                        nu**4 * f**2 * bG2, nu**4 * f**2 * b1,
+                        nu**4 * f**2 * b1**2, nu**4 * f**2,
+                        nu**6 * f**4, nu**6 * f**3, nu**6 * f**3 * b1,
+                        nu**8 * f**4])
+        bias13 = array([b1 * chiKaiser(b1, f, nu, br),
+                        0. * chiKaiser(b1, f, nu, br),
+                        bG2 * chiKaiser(b1, f, nu, br),
+                        nu**2 * f * chiKaiser(b1, f, nu, br),
+                        nu**2 * f * b1 * chiKaiser(b1, f, nu, br),
+                        (nu * f)**2 * chiKaiser(b1, f, nu, br),
+                        nu**4 * f**2 * chiKaiser(b1, f, nu, br)])
+
+        # Le dimensioni di 'ijl,ikl->kl' corrispondono a
+        # i : elementi della bias expansion
+        # j : boh
+        # k : wavenumbers (self.kPE)
+        # l : mu
+        # Use correct einsum
+        if self.scale_dependent_growth:
+            repl = 'ikl,ikl->kl'
+        else:
+            repl = 'ijl,ikl->kl'
+
+        Pkmu_22_nw = einsum(repl, bias22, loop22_nw_sub)
+        Pkmu_22_w  = einsum(repl, bias22, loop22_w)
+        Pkmu_13_nw = einsum(repl, bias13, loop13_nw_sub)
+        Pkmu_13_w  = einsum(repl, bias13, loop13_w)
+
+        Pkmu_22 = Pkmu_22_nw + RSDdamp * Pkmu_22_w
+        Pkmu_13 = Pkmu_13_nw + RSDdamp * Pkmu_13_w
+        Pkmu    = damping_syst * (PNLO + Pkmu_22 + Pkmu_13)
+
+        Pkmu_bG3 = damping_syst * (chiKaiser(b1, f, nu, br) * loop13_nw_sub[1] +
+                                   RSDdamp*chiKaiser(b1, f, nu, br) * loop13_w[1])
+        Pkmu_ctr = damping_syst * (q**2 * (Pnw_sub + RSDdamp * Pw_sub))
+
+        Pell   = cosmology.multipole_projection(self.mu, Pkmu, [0,2,4])
+
+        PG3ell = cosmology.multipole_projection(self.mu, Pkmu_bG3, [0,2,4])
+        Pc0    = cosmology.multipole_projection(self.mu, -2.* Pkmu_ctr, [0,2,4])
+        Pc2    = cosmology.multipole_projection(
+            self.mu, -2.* f * nu**2 * Pkmu_ctr, [0,2,4])
+        Pc4    = cosmology.multipole_projection(
+            self.mu, -2.* f**2 * nu**4 * Pkmu_ctr, [0,2,4])
+        Pck4   = cosmology.multipole_projection(
+            self.mu,
+            f**4 * nu**4 * chiKaiser(b1, f, nu, br)**2 * q**2 *Pkmu_ctr,
+            [0,2,4])
+
+        Pa = cosmology.multipole_projection(self.mu, np.full(q.shape, Psn), [0,2,4])
+        Pe0k2  = cosmology.multipole_projection(self.mu, Psn*q**2, [0,2,4])
+        Pe2k2  = cosmology.multipole_projection(
+            self.mu, Psn*q**2 * nu**2, [0,2,4])
+        Pml = concatenate((PG3ell, Pc0, Pc2, Pc4, Pck4, Pa, Pe0k2, Pe2k2))
+
+        return AP_ampl*Pell, AP_ampl*Pml
+
 #-------------------------------------------------------------------------------
 
     def P_kmu_z_marg_scaledep(self, redshift, do_redshift_rescaling, kgrid=None, f=None,
