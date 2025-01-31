@@ -116,7 +116,7 @@ class nautilus(Sampler):
         sync_processes()
         self.mpi_info("Calling Nautilus...")
 
-        self.naut_sampler = self.naut.Sampler(self.naut_flat_prior, logpost, n_live=self.n_live, pool=self.poolN, pass_dict=False, filepath=self.checkpoint_filename())
+        self.naut_sampler = self.naut.Sampler(self.naut_flat_prior, logpost, n_live=self.n_live, pool=self.poolN, pass_dict=False, filepath=self.statefile_filename())
         self.naut_sampler.run(verbose=True, discard_exploration=False, n_eff=self.n_eff)
         self.process_raw_output()
 
@@ -159,8 +159,8 @@ class nautilus(Sampler):
             return
         self.dump_paramnames(self.raw_prefix)
         self.collection = self.save_sample(self.raw_prefix + ".txt", "1")
-        self.log.info("Removing checkpoint file '%s'", self.checkpoint_filename())
-        os.remove(self.checkpoint_filename())
+        self.log.info("Removing checkpoint file '%s'", self.statefile_filename())
+        os.remove(self.statefile_filename())
         self.log.info("Finished! Nautilus output stored in '%s'", self.raw_prefix)
 
     def samples(
@@ -204,12 +204,21 @@ class nautilus(Sampler):
                 collection = collection.to_getdist()
         return share_mpi(collection)
 
-    def checkpoint_filename(self):
+    def statefile_filename(self):
         if self.output:
             return os.path.join(
                 self.output.folder, self.output.prefix + '-state.hdf5')
         return None
+    
     @property
     def raw_prefix(self):
         return os.path.join(self.output.folder, self.output.prefix)
+    
+    @classmethod
+    def output_files_regexps(cls, output, info=None, minimal=False):
+        # Resume file
+        regexps_tuples = [
+            (re.compile(re.escape(output.prefix + "-state.hdf5")), output.folder)]
+        return regexps_tuples
+
         

@@ -100,7 +100,7 @@ class pbjboss(Likelihood):
                                                 self.pbjobj.prior_cov_inv, self.pbjobj.prior_vector)
 
         # Now deal with the required parameters
-        self.pbj_cosmo_pars=['h', 'Obh2', 'Och2', 'ns', 'As', 'tau',  'Mnu']
+        self.pbj_cosmo_pars=['h', 'Obh2', 'Och2', 'ns', 'As', 'tau',  'Mnu', 'Ochih2']
 
         # For the bias parameters check whether they are analytically marginalizes, otherwise add them to the requirements
         pbj_bias_pars=['b1', 'b2', 'bG2', 'bG3', 'c0', 'c2', 'aP', 'e0k2', 'e2k2', "Tcmb", "z", 'br', 'kJ0p5']

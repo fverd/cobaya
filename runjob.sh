@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
-#SBATCH --job-name=AxiCLASS
+#SBATCH --job-name=AxiCLASS_24
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=fverdian@sissa.it
 #
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=56
+#SBATCH --cpus-per-task=72
 #SBATCH --mem=46G
 
 #SBATCH --time=48:00:00  
@@ -16,4 +16,4 @@
 export OMP_NUM_THREADS=$((${SLURM_CPUS_PER_TASK}/2))
 export RDMAV_FORK_SAFE=1
 
-cobaya-run FRA-params/AxiCLASS.yaml -f
+cobaya-run FRA-params/AxiCLASS.yaml

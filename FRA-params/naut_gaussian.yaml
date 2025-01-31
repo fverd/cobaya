@@ -27,5 +27,6 @@ params:
 
 sampler:
   nautilus:
+    poolN: 1
 
-output: chains/gaussian/gaussian
+output: chains/test/gaussian

@@ -110,9 +110,9 @@ params:
 
 
 sampler:
-  # evaluate:
-  nautilus:
-    poolN: 72
+  evaluate:
+  # nautilus:
+  #   poolN: 72
 
 # debug: True
 output: chains/test/chain

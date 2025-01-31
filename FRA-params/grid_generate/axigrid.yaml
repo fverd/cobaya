@@ -16,8 +16,8 @@ models:
 
   m24:
     params:
-      m_ax_eV: 1.e-24
-      omega_chi:
+      m_axion_eV: 1.e-24
+      omega_scf:
         prior:
           min: 0.0
           max: 0.16
@@ -28,8 +28,8 @@ models:
 
   m25:
     params:
-      m_ax_eV: 1.e-25
-      omega_chi:
+      m_axion_eV: 1.e-25
+      omega_scf:
         prior:
           min: 0.0
           max: 0.16
@@ -40,18 +40,18 @@ models:
 
   m26:
     params:
-      m_ax_eV: 1.e-26
+      m_axion_eV: 1.e-26
   m27:
     params:
-      m_ax_eV: 1.e-27
+      m_axion_eV: 1.e-27
   m28:
     params:
-      m_ax_eV: 1.e-28
+      m_axion_eV: 1.e-28
 
   m29:
     params:
-      m_ax_eV: 1.e-29
-      omega_chi:
+      m_axion_eV: 1.e-29
+      omega_scf:
         prior:
           min: 0.0
           max: 0.08
@@ -62,8 +62,8 @@ models:
 
   m30:
     params:
-      m_ax_eV: 1.e-30
-      omega_chi:
+      m_axion_eV: 1.e-30
+      omega_scf:
         prior:
           min: 0.0
           max: 0.08
@@ -88,12 +88,12 @@ datasets:
           do_redshift_rescaling: False
         likelihood:
           observables: ['P0', 'P2'] # options: Pk, Bk, P0, P2, P4, B0, B2, B4
-          model: model_varied_cosmology_analytic_marg_multiz_withchi
+          model: model_varied_cosmology_analytic_marg_multiz
           type: Gaussian # options: Gaussian, Hartlap, Sellentin
           cosmology: varied # options: fixed, varied
           do_analytic_marg: True
           # store_theorydict: True
-        which_Plin: delta_nonu # options delta_tot, delta_nonu (i.e. cb)
+        which_Plin: delta_tot # options delta_tot, delta_nonu (i.e. cb)
     
 
 defaults:
@@ -102,31 +102,54 @@ defaults:
       extra_args:
         N_ncdm: 0.
         N_ur: 3.046
-        gauge: newtonian
         non_linear: False
+        tol_shooting_deltax: 1e-4
+        tol_shooting_deltaF: 1e-4
+        scf_parameters : '0.05,0.0' ## note: if Omega_scf is set, the parameter entry corresponding to scf_tuning_index is ignored and used for shooting.
+        scf_tuning_index: 0  # in this example, we shoot over theta_ini in order to adjust Omega_scf.
+        scf_evolve_as_fluid: 'yes'  # if set to yes, will switch for fluid when threshold_scf_fluid_m_over_H is met
+        scf_evolve_like_axionCAMB: 'yes'  # fluid all the time in perts, the option no is currently bugging, to be debugged
+        threshold_scf_fluid_m_over_H: 3  # threshold_scf_fluid_m_over_H controls when to switch to fluid
+        do_shooting: 'yes'  # controls shooting in general; e.g. theta_s
+        do_shooting_scf: 'yes'  # necessary when log10_axion_ac & log10_fraction_axion_ac are chosen
+        scf_has_perturbations: 'yes'  # for pedagogical purposes only
+        use_big_theta_scf: 'no'  # in perts with the fluid it is often more stable to follow the heat flux rather "Big Theta=(1+w)*Theta" than the velocity divergence "Theta"
+        use_delta_scf_over_1plusw: 'no'
+        attractor_ic_scf: 'no'  # some specific IC for tracker potentials
+        evolver: 0
+        scf_potential: axion
+        n_axion: 1
+        f_axion: 0.4  # in units of mpl
       ignore_obsolete: True
       stop_at_error: False
+
+      
   params:
-    omega_chi:
+    omega_scf:
       prior:
         min: 0.0
         max: 0.04
-      latex: \Omega_\chi h^2
+      latex: \Omega_{a} h^2
+      drop: True
+
+    Omega_scf:
+      value: 'lambda omega_scf, h: omega_scf/h/h'
 
     omega_cdm:
       prior:
         min: 0.08
-        max: 0.16
+        max: 0.18
       latex: \Omega_\mathrm{c} h^2
 
-    m_ax_eV: 
-      value: 1.e-26
+    m_axion_eV: 
+      value: 1.e-24
       drop: True
 
-    m_ax:
-      value: 'lambda m_ax_eV: m_ax_eV*1.56e29'
+    m_axion:
+      value: 'lambda m_axion_eV, h: m_axion_eV*1.56e29/3.336e-04/h'
 
     acs_chi: 1. #placeholder
+
     kJ0p5:
       value: 'lambda h ,m_ax_eV: np.sqrt(3.336e-04 * h * m_ax_eV * 1.56e29)/h * (0.6666)**0.25'
 
@@ -155,11 +178,15 @@ defaults:
       value: 'lambda logA: 1e-10*np.exp(logA)'
       latex: A_\mathrm{s}
 
-    n_s: 0.9649
+    n_s: 
+      prior:
+        min: 0.6
+        max: 1.2
+
     tau_reio: 0.0925
 
 
 
   sampler:
     nautilus:
-      poolN: 72
+      poolN: 1

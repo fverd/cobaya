@@ -16,7 +16,7 @@ export RDMAV_FORK_SAFE=1
 ##DEFAULT_qsub: sbatch ##
 ##DEFAULT_qdel: scancel ##
 ##DEFAULT_nodes: 1 ##
-##DEFAULT_cores_per_node: 72 ##
+##DEFAULT_cores_per_node: 40 ##
 ##DEFAULT_chains_per_node: 1 ##
 ##DEFAULT_program: cobaya-run -r ##
 ##DEFAULT_walltime: 24:00:00##
