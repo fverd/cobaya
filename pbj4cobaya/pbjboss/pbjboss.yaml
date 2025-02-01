@@ -42,7 +42,7 @@ covariance:
   type: covariance # options: covariance, variance
   file: [C_P0P2_patchy_ngc_z1.txt, C_P0P2_patchy_sgc_z1.txt, C_P0P2_patchy_ngc_z3.txt, C_P0P2_patchy_sgc_z3.txt]
 
-SN: [3333.3, 3333.3, 3333.3, 3333.3]
+SN: [3500., 3500., 5000., 5000.]
 
 
 AP:
