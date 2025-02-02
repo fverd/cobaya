@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --job-name=AxiCLASS_24
+#SBATCH --job-name=ax_mobx_noscaledep
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=fverdian@sissa.it
@@ -16,4 +16,4 @@
 export OMP_NUM_THREADS=$((${SLURM_CPUS_PER_TASK}/2))
 export RDMAV_FORK_SAFE=1
 
-cobaya-run FRA-params/AxiCLASS.yaml
+cobaya-run FRA-params/AxiCLASS_withbx.yaml -f

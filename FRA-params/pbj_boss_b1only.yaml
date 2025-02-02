@@ -10,6 +10,32 @@ likelihood:
       IRresum: True
       IRresum_kind: EH # options EH, DST
       do_redshift_rescaling: False
+    marg_params: 
+      bG3:
+        mean: [0., 0., 0., 0.]
+        sigma: [1., 1., 1., 1.]
+      c0:
+        mean: [0., 0., 0., 0.]
+        sigma: [30., 30., 30., 30.]
+      c2:
+        mean: [30., 30., 30., 30.]
+        sigma: [30., 30., 30., 30.]
+      c4:
+        mean: [0., 0., 0., 0.]
+        sigma: [30., 30., 30., 30.]
+      ck4:
+        mean: [500., 500., 500., 500.]
+        sigma: [500., 500., 500., 500.]
+      aP:
+        mean: [0., 0., 0., 0.]
+        sigma: [2., 2., 2., 2.]
+      e0k2:
+        mean: [0., 0., 0., 0.]
+        sigma: [2., 2., 2., 2.]
+      e2k2:
+        mean: [0., 0., 0., 0.]
+        sigma: [2., 2., 2., 2.]
+
 
 params:
   h:
@@ -43,13 +69,15 @@ params:
 
   n_s: 0.9649
   tau_reio: 0.0544
+  omega_scf: 0
+  kJ0p5: 0.
 
 
 # debug: True
 timing: True
 sampler:
-  evaluate:
-  # nautilus:
-  #   poolN: 70
+  # evaluate:
+  nautilus:
+    poolN: 70
 
-output: chains/test/bossb1
+output: chains/bossb1_ck4/bossb1

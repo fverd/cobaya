@@ -456,6 +456,9 @@ class PBJlikelihood:
             if self.scale_dependent_growth:
                 self.kJ0p5 = zparams['kJ0p5'] #for the moment I just undo the acs_chi correspondance
                 f = f*(1+fx*self.g_c_int(-2*np.log(self.kPE/self.kJ0p5))) # for the moment instantaneous at z=0.5, then I will implement properly
+            else:
+                self.kJ0p5 = 1.e4 # just it above scales
+
             zparams['f'] = f
             # Compute the Plinear and _Pgg_kmu_terms at the redshift of interest
             # If it's the same as before (like boss ngc and sgc) can skip this
