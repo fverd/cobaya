@@ -5,7 +5,7 @@ likelihood:
     stop_at_error: True
     theory:
       linear: cobaya 
-      scale_dependent_growth: True
+      scale_dependent_growth: False
       IRresum: True
       IRresum_kind: EH # options EH, DST
       do_redshift_rescaling: False
@@ -115,7 +115,7 @@ theory:
 
 # debug: True
 sampler:
-  # evaluate:
-  nautilus:
-    poolN: 72
-output: chains/Axi_Q0/chain
+  evaluate:
+  # nautilus:
+  #   poolN: 72
+output: chains/test/chain

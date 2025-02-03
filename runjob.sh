@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#SBATCH --job-name=restart4space_ax_Q0
+#SBATCH --job-name=ax_Q0
 
 #SBATCH --mail-type=END
 #SBATCH --mail-user=fverdian@sissa.it
@@ -16,4 +16,4 @@
 export OMP_NUM_THREADS=$((${SLURM_CPUS_PER_TASK}/2))
 export RDMAV_FORK_SAFE=1
 
-cobaya-run /home/fverdian/cobaya/FRA-params/AxiCLASS_Q0.yaml -r
+cobaya-run /home/fverdian/cobaya/FRA-params/AxiCLASS_Q0.yaml -f

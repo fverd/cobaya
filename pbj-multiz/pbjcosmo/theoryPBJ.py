@@ -1613,7 +1613,10 @@ class PBJtheory:
         Sig2mu, RSDdamp = self._muxdamp(q, nu, Sigma2, dSigma2, f)
 
         def chiKaiser( b1, f, mu, br):
-            return b1 + br*b1*(self.g_an(-2*np.log(self.kPE/self.kJ0p5)))[:,newaxis] + f * mu**2        
+            if self.scale_dependent_growth:
+                return b1 + br*b1*(self.g_an(-2*np.log(self.kPE/self.kJ0p5)))[:,newaxis] + f * mu**2        
+            else:
+                return b1 + f * mu**2 
         
         # Next-to-leading order, counterterm, noise
         PNLO = chiKaiser(b1, f, nu, br)**2 * (Pnw_sub + RSDdamp * Pw_sub *
