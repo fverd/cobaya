@@ -35,6 +35,8 @@ params:
   Ok: 0.
 
 k_max: [0.2, 0.2, 0.2, 0.2]
+k_min_Q0: [0.2, 0.2, 0.2, 0.2]
+k_max_Q0: [0.4, 0.4, 0.4, 0.4]
 redshift_bins: [0.38, 0.38, 0.61, 0.61]
 data_folder: /home/fverdian/cobaya/pbj4cobaya/pbjboss/data/boss/
 data_files: [pk_boss_ngc_z1_fkp.txt, pk_boss_sgc_z1_fkp.txt, pk_boss_ngc_z3_fkp.txt, pk_boss_sgc_z3_fkp.txt]

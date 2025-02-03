@@ -153,6 +153,9 @@ class pbjboss(Likelihood):
                 if fcont.shape[0] == 4:
                     mesfile['k'], mesfile['P0'], mesfile['P2'], mesfile['P4'] = fcont
 
+                    # Compute Q0 from those, in case is needed 
+                    mesfile['Q0'] = mesfile['P0'] - 1/2*mesfile['P2'] + 3/8*mesfile['P4']
+
                     # Store the k values and check they are consistent with the previous
                     if self.pbjobj.kPE is None:
                         self.pbjobj.kPE = mesfile['k']
@@ -199,13 +202,15 @@ class pbjboss(Likelihood):
         num_bins = len(self.k_max)
 
         self.pbjobj.IdxP = create_bool_mask(self.pbjobj.kPE, self.k_max)
-        self.pbjobj.IdxP4 = create_bool_mask(self.pbjobj.kPE, self.k_max) # For the moment same as IdxP
+        self.pbjobj.IdxP4 = self.pbjobj.IdxP
+        self.pbjobj.IdxQ0 = create_bool_mask(self.pbjobj.kPE, self.k_max_Q0,self.k_min_Q0) 
+
         # Initialize vectors and masks
         self.pbjobj.CutDataVecs = [[] for _ in range(num_bins)]
         IdxTot = [[] for _ in range(num_bins)]
         self.pbjobj.invCov = [[] for _ in range(num_bins)]
 
-        idx_dict = {'Pk': self.pbjobj.IdxP, 'P0': self.pbjobj.IdxP, 'P2': self.pbjobj.IdxP, 'P4': self.pbjobj.IdxP4}
+        idx_dict = {'Pk': self.pbjobj.IdxP, 'P0': self.pbjobj.IdxP, 'P2': self.pbjobj.IdxP, 'P4': self.pbjobj.IdxP, 'Q0': self.pbjobj.IdxQ0}
         
         for i in range(num_bins):
             self.pbjobj.CutDataVecs[i] = [self.pbjobj.DataDict[obs][i][idx_dict[obs][i]]

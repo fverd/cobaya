@@ -490,6 +490,10 @@ class PBJlikelihood:
             marg_dict[ii]['P4'] = np.asarray([Pell_marg[2+3*j,self.IdxP4[ii]]
                                               for j in self.index_marg_param])
 
+            # Add Q0 if needed
+            theory_dict[ii]['Q0'] = Pell[0][self.IdxQ0[ii]]-1/2*Pell[1][self.IdxQ0[ii]]+3/8*Pell[2][self.IdxQ0[ii]]
+            marg_dict[ii]['Q0'] = np.asarray([Pell_marg[0+3*j,self.IdxQ0[ii]] - 1/2* Pell_marg[1+3*j,self.IdxQ0[ii]]+ 3/8* Pell_marg[2+3*j,self.IdxQ0[ii]] for j in self.index_marg_param])
+
             TheoryVec = np.concatenate([theory_dict[ii][obs] for obs in self.Obs])
             MargVec = np.hstack([marg_dict[ii][obs] for obs in self.Obs])
 
