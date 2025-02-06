@@ -1614,7 +1614,7 @@ class PBJtheory:
 
         def chiKaiser( b1, f, mu, br):
             if self.scale_dependent_growth:
-                return b1 + br*b1*(self.g_an(-2*np.log(self.kPE/self.kJ0p5)))[:,newaxis] + f * mu**2        
+                return b1 + br*(1-self.g_an(-2*np.log(self.kPE/self.kJ0p5)))[:,newaxis] + f * mu**2        
             else:
                 return b1 + f * mu**2 
         
