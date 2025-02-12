@@ -10,6 +10,7 @@ FRA-ulysses-nosync/
 files_chiara/
 ulysses_runjob.sh
 scripts/*
+FRA/cornerplots
 # Backups
 *~
 \#*
