@@ -1,0 +1,15 @@
+﻿omega_scf	\Omega_{a} h^2
+omega_cdm	\Omega_\mathrm{c} h^2
+h	h
+omega_b	\Omega_\mathrm{b} h^2
+logA	\log(10^{10} A_\mathrm{s})
+b1_ngc_z1	b1\ ngc\ z1
+b1_sgc_z1	b1\ sgc\ z1
+b1_ngc_z3	b1\ ngc\ z3
+b1_sgc_z3	b1\ sgc\ z3
+Omega_scf*	Omega\ scf
+m_axion*	m\ axion
+kJ0p5*	kJ0p5
+A_s*	A_\mathrm{s}
+logprior__0*	\log\pi_\mathrm{0}
+loglike__pbjboss*	\log\mathcal{L}_\mathrm{pbjboss}

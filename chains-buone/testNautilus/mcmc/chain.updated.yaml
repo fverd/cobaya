@@ -1,0 +1,385 @@
+theory:
+  classy:
+    path: null
+    speed: 0.2
+    stop_at_error: false
+    extra_args:
+      N_ncdm: 0.0
+      N_ur: 3.046
+      non_linear: false
+      tol_shooting_deltax: 0.0001
+      tol_shooting_deltaF: 0.0001
+      scf_parameters: 0.05,0.0
+      scf_tuning_index: 0
+      scf_evolve_as_fluid: 'yes'
+      scf_evolve_like_axionCAMB: 'yes'
+      threshold_scf_fluid_m_over_H: 3
+      do_shooting: 'yes'
+      do_shooting_scf: 'yes'
+      scf_has_perturbations: 'yes'
+      use_big_theta_scf: 'no'
+      use_delta_scf_over_1plusw: 'no'
+      attractor_ic_scf: 'no'
+      scf_potential: axion
+      n_axion: 1
+      f_axion: 0.4
+    ignore_obsolete: true
+    use_renames: false
+    renames:
+      Mnu: m_ncdm
+    version: v3.2.0
+    input_params:
+    - Omega_scf
+    - omega_cdm
+    - m_axion
+    - h
+    - omega_b
+    - A_s
+    - n_s
+    - tau_reio
+    output_params: []
+likelihood:
+  pbjboss:
+    k_max:
+    - 0.2
+    - 0.2
+    - 0.2
+    - 0.2
+    k_min_Q0:
+    - 0.2
+    - 0.2
+    - 0.2
+    - 0.2
+    k_max_Q0:
+    - 0.4
+    - 0.4
+    - 0.4
+    - 0.4
+    redshift_bins:
+    - 0.38
+    - 0.38
+    - 0.61
+    - 0.61
+    data_folder: /home/fverdian/cobaya/pbj4cobaya/pbjboss/data/boss/
+    data_files:
+    - pk_boss_ngc_z1_fkp.txt
+    - pk_boss_sgc_z1_fkp.txt
+    - pk_boss_ngc_z3_fkp.txt
+    - pk_boss_sgc_z3_fkp.txt
+    covariance:
+      type: covariance
+      file:
+      - C_024Q_ngc_z1.txt
+      - C_024Q_sgc_z1.txt
+      - C_024Q_ngc_z3.txt
+      - C_024Q_sgc_z3.txt
+    SN:
+    - 3500.0
+    - 3500.0
+    - 5000.0
+    - 5000.0
+    AP:
+      do_AP: true
+      fiducial_cosmology:
+        h: 0.676
+        Obh2: 0.022
+        Och2: 0.119
+        Mnu: 0.06
+        w0: -1.0
+        wa: 0.0
+        Ok: 0.0
+    likelihood:
+      observables:
+      - P0
+      - P2
+      - P4
+      - Q0
+      model: model_varied_cosmology_analytic_marg_multiz_withchi
+      type: Gaussian
+      cosmology: varied
+      do_analytic_marg: true
+    marg_params:
+      bG3:
+        mean:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 0.0
+        sigma:
+        - 1.0
+        - 1.0
+        - 1.0
+        - 1.0
+      c0:
+        mean:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 0.0
+        sigma:
+        - 30.0
+        - 30.0
+        - 30.0
+        - 30.0
+      c2:
+        mean:
+        - 30.0
+        - 30.0
+        - 30.0
+        - 30.0
+        sigma:
+        - 30.0
+        - 30.0
+        - 30.0
+        - 30.0
+      aP:
+        mean:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 0.0
+        sigma:
+        - 2.0
+        - 2.0
+        - 2.0
+        - 2.0
+      e0k2:
+        mean:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 0.0
+        sigma:
+        - 2.0
+        - 2.0
+        - 2.0
+        - 2.0
+      e2k2:
+        mean:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 0.0
+        sigma:
+        - 2.0
+        - 2.0
+        - 2.0
+        - 2.0
+    theory:
+      linear: cobaya
+      scale_dependent_growth: false
+      IRresum: true
+      IRresum_kind: EH
+      do_redshift_rescaling: false
+    which_Plin: delta_tot
+    renames:
+      omega_b: Obh2
+      omega_cdm: Och2
+      omega_scf: Ochih2
+      A_s: As
+      n_s: ns
+      tau_reio: tau
+    pbj_path: pbj-multiz/
+    data_path: null
+    type: []
+    speed: -1
+    stop_at_error: true
+    version: null
+    python_path: pbj4cobaya/
+    input_params:
+    - kJ0p5
+    - b1_ngc_z1
+    - b1_sgc_z1
+    - b1_ngc_z3
+    - b1_sgc_z3
+    - b1
+    - b2
+    - bG2
+    - br
+    - Mnu
+    - z
+    - Tcmb
+    - w0
+    - wa
+    - Ok
+    output_params: []
+params:
+  omega_scf:
+    prior:
+      min: 0.0
+      max: 0.04
+    ref:
+      dist: norm
+      loc: 0.0
+      scale: 0.0015
+    latex: \Omega_{a} h^2
+    drop: true
+    renames:
+    - Ochih2
+  Omega_scf:
+    value: 'lambda omega_scf, h: omega_scf/h/h'
+    derived: true
+  omega_cdm:
+    prior:
+      min: 0.08
+      max: 0.18
+    ref:
+      dist: norm
+      loc: 0.1282
+      scale: 0.0065
+    latex: \Omega_\mathrm{c} h^2
+    renames:
+    - Och2
+  m_axion_eV:
+    value: 1.0e-27
+    drop: true
+  m_axion:
+    value: 'lambda m_axion_eV, h: m_axion_eV*1.56e29/3.336e-04/h'
+    derived: true
+  kJ0p5:
+    value: 'lambda m_axion_eV, h: np.sqrt(3.336e-04 * h * m_axion_eV * 1.56e29)/h
+      * (0.6666)**0.25'
+    derived: true
+  h:
+    prior:
+      min: 0.63
+      max: 0.75
+    ref:
+      dist: norm
+      loc: 0.692
+      scale: 0.012
+    latex: h
+  omega_b:
+    prior:
+      dist: norm
+      loc: 0.02268
+      scale: 0.00038
+    latex: \Omega_\mathrm{b} h^2
+    renames:
+    - Obh2
+  logA:
+    prior:
+      min: 2.0
+      max: 3.8
+    ref:
+      dist: norm
+      loc: 2.705
+      scale: 0.094
+    latex: \log(10^{10} A_\mathrm{s})
+    drop: true
+  A_s:
+    value: 'lambda logA: 1e-10*np.exp(logA)'
+    latex: A_\mathrm{s}
+    derived: true
+    renames:
+    - As
+  n_s:
+    value: 0.9649
+    renames:
+    - ns
+  tau_reio:
+    value: 0.0544
+    renames:
+    - tau
+  b1_ngc_z1:
+    prior:
+      min: 1
+      max: 3
+    ref:
+      dist: norm
+      loc: 2.2
+      scale: 0.12
+  b1_sgc_z1:
+    prior:
+      min: 1
+      max: 3
+    ref:
+      dist: norm
+      loc: 2.26
+      scale: 0.12
+  b1_ngc_z3:
+    prior:
+      min: 1
+      max: 3
+    ref:
+      dist: norm
+      loc: 2.36
+      scale: 0.12
+  b1_sgc_z3:
+    prior:
+      min: 1
+      max: 3
+    ref:
+      dist: norm
+      loc: 2.49
+      scale: 0.12
+  b1:
+    value: 'lambda b1_ngc_z1, b1_sgc_z1, b1_ngc_z3, b1_sgc_z3: [b1_ngc_z1, b1_sgc_z1,
+      b1_ngc_z3, b1_sgc_z3]'
+    derived: false
+    latex: b_1
+  b2:
+    value: 0.0
+  bG2:
+    value: 0.0
+  br:
+    value: 0.0
+  Mnu:
+    value: 0.0
+    renames:
+    - m_ncdm
+  z:
+    value: 0.5
+  Tcmb:
+    value: 2.7255
+  w0:
+    value: -1.0
+  wa:
+    value: 0.0
+  Ok:
+    value: 0.0
+sampler:
+  mcmc:
+    burn_in: 0
+    max_tries: 40d
+    covmat: auto
+    covmat_params: null
+    proposal_scale: 1.9
+    output_every: 60s
+    learn_every: 40d
+    temperature: 1
+    learn_proposal: true
+    learn_proposal_Rminus1_max: 2.0
+    learn_proposal_Rminus1_max_early: 30.0
+    learn_proposal_Rminus1_min: 0.0
+    max_samples: .inf
+    Rminus1_stop: 0.015
+    Rminus1_cl_stop: 0.2
+    Rminus1_cl_level: 0.95
+    Rminus1_single_split: 4
+    measure_speeds: true
+    oversample_power: 0.4
+    oversample_thin: true
+    drag: true
+    blocking:
+    - - 1
+      - - omega_scf
+        - omega_cdm
+        - h
+        - omega_b
+        - logA
+    - - 1
+      - - b1_ngc_z1
+        - b1_sgc_z1
+        - b1_ngc_z3
+        - b1_sgc_z3
+    callback_function: null
+    callback_every: null
+    seed: null
+    check_every: null
+    oversample: null
+    drag_limits: null
+    fallback_covmat_scale: 4
+    version: 3.5.4
+output: chain
+version: 3.5.4
