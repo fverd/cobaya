@@ -48,7 +48,7 @@ class Pbj(PBJtheory, PBJtemplates, PBJlikelihood, PBJsampler):
         except: self.scale_dependent_growth = False
         if self.scale_dependent_growth: print("\033[1;32m[info] \033[00m Using scale dependent f")
         # Load the linear emulator
-        if "baccoemu" in sys.modules:
+        if self.linear == "bacco":
             self.emulator = baccoemu.Matter_powerspectrum(linear=True,
                                                           smeared_bao=False,
                                                           nonlinear_boost=False,

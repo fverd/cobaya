@@ -1,9 +1,7 @@
 theory:
   classy:
     extra_args:
-      non linear: hmcode
-      nonlinear_min_k_max: 20
-
+      non linear: False
       N_ncdm: 0.
       N_ur: 3.046
       tol_shooting_deltax: 1e-4
@@ -30,10 +28,7 @@ likelihood:
   planck_2018_lowl.TT: null
   planck_2018_lowl.EE: null
   planck_2018_highl_plik.TTTEEE_lite_native: null
-  planckpr4lensing:
-    package_install:
-      github_repository: carronj/planck_PR4_lensing
-      min_version: 1.0.2
+  planck_2018_lensing.native:
 
 params:
 
@@ -48,7 +43,7 @@ params:
     value: 'lambda omega_scf, h: omega_scf/h/h'
 
   m_axion_eV: 
-    value: 1.e-27
+    value: 1.e-24
     drop: True
 
   m_axion:
@@ -90,10 +85,10 @@ params:
     latex: \tau_\mathrm{reio}
     
 sampler:
-  # evaluate:
-  nautilus:
-    poolN: 32
+  evaluate:
+  # nautilus:
+  #   poolN: 32
 
-output: chains/Ax_planck_m27/chain
+output: chains/test/chain
 
 # debug: True

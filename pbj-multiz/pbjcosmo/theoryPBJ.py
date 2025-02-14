@@ -1563,7 +1563,7 @@ class PBJtheory:
 # ----------------------------------------------------------------------------
 
     def P_kmu_z_marg_scaledep_withchi(self, redshift, do_redshift_rescaling, kgrid=None, f=None,D=None, cosmo=None, AP_as_nuisance=False, alpha_par=1,
-                     alpha_perp=1, b1=1, b2=0, bG2=0, Psn=0, sigma_z=0, f_out=0, br = 0.,
+                     alpha_perp=1, b1=1, b2=0, bG2=0, Psn=0, sigma_z=0, f_out=0, bx = 0.,
                      **kwargs):
 
         if do_redshift_rescaling:
@@ -1577,7 +1577,6 @@ class PBJtheory:
         q = kgrid[:, newaxis]
         nu = self.mu
         AP_ampl = 1.
-
         sigma_r = lightspeed_kms * sigma_z / (100*\
                                               cosmology.Hubble_adim(redshift,
                                                                     self.Om,
@@ -1612,14 +1611,14 @@ class PBJtheory:
 
         Sig2mu, RSDdamp = self._muxdamp(q, nu, Sigma2, dSigma2, f)
 
-        def chiKaiser( b1, f, mu, br):
+        def chiKaiser( b1, f, mu, bx):
             if self.scale_dependent_growth:
-                return b1 + br*(1-self.g_an(-2*np.log(self.kPE/self.kJ0p5)))[:,newaxis] + f * mu**2        
+                return b1 + bx*self.g_an(-4*np.log(self.kPE/self.kJ0p5))[:,newaxis] + f * mu**2        
             else:
                 return b1 + f * mu**2 
         
         # Next-to-leading order, counterterm, noise
-        PNLO = chiKaiser(b1, f, nu, br)**2 * (Pnw_sub + RSDdamp * Pw_sub *
+        PNLO = chiKaiser(b1, f, nu, bx)**2 * (Pnw_sub + RSDdamp * Pw_sub *
                                                      (1. + q**2 * Sig2mu))
 
         # Biases
@@ -1635,13 +1634,13 @@ class PBJtheory:
                         nu**4 * f**2 * b1**2, nu**4 * f**2,
                         nu**6 * f**4, nu**6 * f**3, nu**6 * f**3 * b1,
                         nu**8 * f**4])
-        bias13 = array([b1 * chiKaiser(b1, f, nu, br),
-                        0. * chiKaiser(b1, f, nu, br),
-                        bG2 * chiKaiser(b1, f, nu, br),
-                        nu**2 * f * chiKaiser(b1, f, nu, br),
-                        nu**2 * f * b1 * chiKaiser(b1, f, nu, br),
-                        (nu * f)**2 * chiKaiser(b1, f, nu, br),
-                        nu**4 * f**2 * chiKaiser(b1, f, nu, br)])
+        bias13 = array([b1 * chiKaiser(b1, f, nu, bx),
+                        0. * chiKaiser(b1, f, nu, bx),
+                        bG2 * chiKaiser(b1, f, nu, bx),
+                        nu**2 * f * chiKaiser(b1, f, nu, bx),
+                        nu**2 * f * b1 * chiKaiser(b1, f, nu, bx),
+                        (nu * f)**2 * chiKaiser(b1, f, nu, bx),
+                        nu**4 * f**2 * chiKaiser(b1, f, nu, bx)])
 
         # Le dimensioni di 'ijl,ikl->kl' corrispondono a
         # i : elementi della bias expansion
@@ -1661,10 +1660,45 @@ class PBJtheory:
 
         Pkmu_22 = Pkmu_22_nw + RSDdamp * Pkmu_22_w
         Pkmu_13 = Pkmu_13_nw + RSDdamp * Pkmu_13_w
+
+        # -----------------------------
+        # Very nice. Now append to the bias vector the \delta_c \delta_chi pieces 
+        # For the moment I don't care about wiggle-NW at the chi loop level
+        g_kL = self.g_an(-4*np.log(self.kL/self.kJ0p5))
+        g_kPE = self.g_an(-4*np.log(self.kPE/self.kJ0p5))[:,newaxis]
+
+        PL_cx = cosmo['PL']*g_kL
+        PL_xx = cosmo['PL']*g_kL**2
+        PL_cx+= 1.e-5 # otherwist it becomez exactly zero, a problem for fastpt
+
+        loop22_cx = interp1d(self.kL,self.fastpt.Pkmu_22_one_loop_terms(self.kL, PL_cx, C_window=.75))(q)
+        loop13_xx = interp1d(self.kL,self.fastpt.Pkmu_13_one_loop_terms(self.kL, PL_xx))(q)
+        ph0 = np.zeros_like(f * nu) # placeholder of 0 of correct shape
+        bias22_x = array([(b1 * bx * nu**0 * f**0 + 0.5 * bx**2 * g_kPE), bx * b2 * nu**0 * f**0, bx * bG2 * nu**0 * f**0,
+                        ph0, ph0, ph0,
+                        nu**2 * f * bx, ph0, ph0,
+                        (nu * f * b1)*(nu * f * bx), (nu * b1)*(nu * bx) * f,
+                        nu**2 * f * bx * b2, nu**2 * f * bx * bG2,
+                        (nu * f)**2 * bx, ph0,
+                        ph0, ph0, ph0,
+                        nu**4 * f**3 * bx, ph0,
+                        ph0, nu**4 * f**2 * bx,
+                        nu**4 * f**2 * b1*bx, ph0,
+                        ph0, ph0, nu**6 * f**3 * bx,
+                        ph0])
+
+        bias13_x = chiKaiser(b1, f, nu, bx) * bx * loop13_xx[0] # I only need to add the F3 term 
+
+        Pkmu_22 += einsum(repl, bias22_x, loop22_cx)
+        Pkmu_13 += bias13_x
+
+        # -----------------------------
+
         Pkmu    = damping_syst * (PNLO + Pkmu_22 + Pkmu_13)
 
-        Pkmu_bG3 = damping_syst * (chiKaiser(b1, f, nu, br) * loop13_nw_sub[1] +
-                                   RSDdamp*chiKaiser(b1, f, nu, br) * loop13_w[1])
+        # Now back to the usualy analytic marginalization
+        Pkmu_bG3 = damping_syst * (chiKaiser(b1, f, nu, bx) * loop13_nw_sub[1] +
+                                   RSDdamp*chiKaiser(b1, f, nu, bx) * loop13_w[1])
         Pkmu_ctr = damping_syst * (q**2 * (Pnw_sub + RSDdamp * Pw_sub))
 
         Pell   = cosmology.multipole_projection(self.mu, Pkmu, [0,2,4])
@@ -1677,7 +1711,7 @@ class PBJtheory:
             self.mu, -2.* f**2 * nu**4 * Pkmu_ctr, [0,2,4])
         Pck4   = cosmology.multipole_projection(
             self.mu,
-            f**4 * nu**4 * chiKaiser(b1, f, nu, br)**2 * q**2 *Pkmu_ctr,
+            f**4 * nu**4 * chiKaiser(b1, f, nu, bx)**2 * q**2 *Pkmu_ctr,
             [0,2,4])
 
         Pa = cosmology.multipole_projection(self.mu, np.full(q.shape, Psn), [0,2,4])

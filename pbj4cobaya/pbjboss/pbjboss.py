@@ -103,7 +103,7 @@ class pbjboss(Likelihood):
         self.pbj_cosmo_pars=['h', 'Obh2', 'Och2', 'ns', 'As', 'tau',  'Mnu', 'Ochih2']
 
         # For the bias parameters check whether they are analytically marginalizes, otherwise add them to the requirements
-        pbj_bias_pars=['b1', 'b2', 'bG2', 'bG3', 'c0', 'c2', 'aP', 'e0k2', 'e2k2', "Tcmb", "z", 'br', 'kJ0p5']
+        pbj_bias_pars=['b1', 'b2', 'bG2', 'bG3', 'c0', 'c2', 'aP', 'e0k2', 'e2k2', "Tcmb", "z", 'bx', 'kJ0p5']
         self.pbj_vary_bias_pars = [p for p in pbj_bias_pars if p not in marg_params]
 
         self.pbj_allpars = self.pbj_cosmo_pars + self.pbj_vary_bias_pars

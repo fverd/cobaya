@@ -5,7 +5,7 @@ likelihood:
     stop_at_error: True
     theory:
       linear: cobaya 
-      scale_dependent_growth: False
+      scale_dependent_growth: True
       IRresum: True
       IRresum_kind: EH # options EH, DST
       do_redshift_rescaling: False
@@ -78,6 +78,37 @@ params:
   tau_reio: 0.0544
 
 
+  bx_ngc_z1:
+    prior:
+      min: -3.
+      max: 3.
+    latex: b_\chi/b_1 \;ngc,z1
+    drop: True
+
+  bx_sgc_z1:
+    prior:
+      min: -3.
+      max: 3.
+    latex: b_\chi/b_1 \;sgc,z1
+    drop: True
+
+  bx_ngc_z3:
+    prior:
+      min: -3.
+      max: 3.
+    latex: b_\chi/b_1 \;ngc,z3
+    drop: True
+
+  bx_sgc_z3:
+    prior:
+      min: -3.
+      max: 3.
+    latex: b_\chi/b_1 \;sgc,z3
+    drop: True
+
+  bx: 
+    value: "lambda bx_ngc_z1, bx_sgc_z1, bx_ngc_z3, bx_sgc_z3: [bx_ngc_z1, bx_sgc_z1, bx_ngc_z3, bx_sgc_z3]"
+    derived: False
 
 
 

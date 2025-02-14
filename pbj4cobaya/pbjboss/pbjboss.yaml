@@ -26,7 +26,7 @@ params:
     drop: True
   b2: 0.
   bG2: 0.
-  br: 0.
+  bx: 0.
   Mnu: 0.
   z: 0.5
   Tcmb: 2.7255
