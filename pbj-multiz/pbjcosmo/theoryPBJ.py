@@ -1563,7 +1563,7 @@ class PBJtheory:
 # ----------------------------------------------------------------------------
 
     def P_kmu_z_marg_scaledep_withchi(self, redshift, do_redshift_rescaling, kgrid=None, f=None,D=None, cosmo=None, AP_as_nuisance=False, alpha_par=1,
-                     alpha_perp=1, b1=1, b2=0, bG2=0, Psn=0, sigma_z=0, f_out=0, bx = 0.,
+                     alpha_perp=1, b1=1, b2=0, bG2=0, Psn=0, sigma_z=0, f_out=0, bx = 0,
                      **kwargs):
 
         if do_redshift_rescaling:
@@ -1664,33 +1664,37 @@ class PBJtheory:
         # -----------------------------
         # Very nice. Now append to the bias vector the \delta_c \delta_chi pieces 
         # For the moment I don't care about wiggle-NW at the chi loop level
-        g_kL = self.g_an(-4*np.log(self.kL/self.kJ0p5))
-        g_kPE = self.g_an(-4*np.log(self.kPE/self.kJ0p5))[:,newaxis]
+        if bx != 0:
+            g_kL = self.g_an(-4*np.log(self.kL/self.kJ0p5))
+            g_kPE = self.g_an(-4*np.log(self.kPE/self.kJ0p5))[:,newaxis]
 
-        PL_cx = cosmo['PL']*g_kL
-        PL_xx = cosmo['PL']*g_kL**2
-        PL_cx+= 1.e-5 # otherwist it becomez exactly zero, a problem for fastpt
+            PL_cx = cosmo['PL']*g_kL + 1.e-5 # otherwist it becomez exactly zero, a problem for fastpt
+            PL_xx = cosmo['PL']*g_kL**2 + 1.e-5 # otherwist it becomez exactly zero, a problem for fastpt
+            PL_cx[-2] = 1.e-5 #to please FASTpt
+            PL_cx[-1] = 1.e-5 #to please FASTpt
+            PL_xx[-2] = 1.e-5 #to please FASTpt
+            PL_xx[-1] = 1.e-5 #to please FASTpt
 
-        loop22_cx = interp1d(self.kL,self.fastpt.Pkmu_22_one_loop_terms(self.kL, PL_cx, C_window=.75))(q)
-        loop13_xx = interp1d(self.kL,self.fastpt.Pkmu_13_one_loop_terms(self.kL, PL_xx))(q)
-        ph0 = np.zeros_like(f * nu) # placeholder of 0 of correct shape
-        bias22_x = array([(b1 * bx * nu**0 * f**0 + 0.5 * bx**2 * g_kPE), bx * b2 * nu**0 * f**0, bx * bG2 * nu**0 * f**0,
-                        ph0, ph0, ph0,
-                        nu**2 * f * bx, ph0, ph0,
-                        (nu * f * b1)*(nu * f * bx), (nu * b1)*(nu * bx) * f,
-                        nu**2 * f * bx * b2, nu**2 * f * bx * bG2,
-                        (nu * f)**2 * bx, ph0,
-                        ph0, ph0, ph0,
-                        nu**4 * f**3 * bx, ph0,
-                        ph0, nu**4 * f**2 * bx,
-                        nu**4 * f**2 * b1*bx, ph0,
-                        ph0, ph0, nu**6 * f**3 * bx,
-                        ph0])
+            loop22_cx = interp1d(self.kL,self.fastpt.Pkmu_22_one_loop_terms(self.kL, PL_cx, C_window=.75))(q)
+            loop13_xx = interp1d(self.kL,self.fastpt.Pkmu_13_one_loop_terms(self.kL, PL_xx))(q)
+            ph0 = np.zeros_like(f * nu) # placeholder of 0 of correct shape
+            bias22_x = array([(b1 * bx * nu**0 * f**0 + 0.5 * bx**2 * g_kPE), bx * b2 * nu**0 * f**0, bx * bG2 * nu**0 * f**0,
+                            ph0, ph0, ph0,
+                            nu**2 * f * bx, ph0, ph0,
+                            (nu * f * b1)*(nu * f * bx), (nu * b1)*(nu * bx) * f,
+                            nu**2 * f * bx * b2, nu**2 * f * bx * bG2,
+                            (nu * f)**2 * bx, ph0,
+                            ph0, ph0, ph0,
+                            nu**4 * f**3 * bx, ph0,
+                            ph0, nu**4 * f**2 * bx,
+                            nu**4 * f**2 * b1*bx, ph0,
+                            ph0, ph0, nu**6 * f**3 * bx,
+                            ph0])
 
-        bias13_x = chiKaiser(b1, f, nu, bx) * bx * loop13_xx[0] # I only need to add the F3 term 
+            bias13_x = chiKaiser(b1, f, nu, bx) * bx * loop13_xx[0] # I only need to add the F3 term 
 
-        Pkmu_22 += einsum(repl, bias22_x, loop22_cx)
-        Pkmu_13 += bias13_x
+            Pkmu_22 += einsum(repl, bias22_x, loop22_cx)
+            Pkmu_13 += bias13_x
 
         # -----------------------------
 

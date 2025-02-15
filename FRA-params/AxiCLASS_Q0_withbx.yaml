@@ -39,7 +39,7 @@ params:
     latex: \Omega_\mathrm{c} h^2
 
   m_axion_eV: 
-    value: 1.e-25
+    value: 1.e-29
     drop: True
 
   m_axion:
@@ -146,9 +146,9 @@ theory:
 
 # debug: True
 sampler:
-  evaluate:
-  # nautilus:
-  #   poolN: 72
+  # evaluate:
+  nautilus:
+    poolN: 16
 
   
 output: chains/test/chain
