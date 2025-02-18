@@ -19,7 +19,7 @@ likelihood:
     covariance:
       type: covariance # options: covariance, variance
       file: [C_024Q_ngc_z1.txt,C_024Q_sgc_z1.txt,C_024Q_ngc_z3.txt,C_024Q_sgc_z3.txt]
-    which_Plin: delta_tot # options delta_tot, delta_nonu (i.e. cb)
+    which_Plin: delta_nonu # options delta_tot, delta_nonu (i.e. cb)
 
 params:
   omega_scf:
@@ -76,6 +76,32 @@ params:
 
   # Mnu: 0.06
   tau_reio: 0.0544
+
+  b1_ngc_z1:
+    prior:
+      min: -5.
+      max: 3.
+
+  b1_sgc_z1:
+    prior:
+      min: -1.
+      max: 3.
+
+  b1_ngc_z3:
+    prior:
+      min: -1.
+      max: 3.
+
+  b1_sgc_z3:
+    prior:
+      min: -1.
+      max: 3.
+
+  b1: 
+    value: "lambda b1_ngc_z1, b1_sgc_z1, b1_ngc_z3, b1_sgc_z3: [b1_ngc_z1, b1_sgc_z1, b1_ngc_z3, b1_sgc_z3]"
+    derived: False
+    latex: b_1
+    drop: True
 
 
   bx_ngc_z1:

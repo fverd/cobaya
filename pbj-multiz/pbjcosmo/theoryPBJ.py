@@ -1613,7 +1613,7 @@ class PBJtheory:
 
         def chiKaiser( b1, f, mu, bx):
             if self.scale_dependent_growth:
-                return b1 + bx*self.g_an(-4*np.log(self.kPE/self.kJ0p5))[:,newaxis] + f * mu**2        
+                return b1 + bx*self.g_an(-4*np.log(self.kPE/self.kJ0p5))[:,newaxis] + f * mu**2                    
             else:
                 return b1 + f * mu**2 
         
@@ -1668,33 +1668,40 @@ class PBJtheory:
             g_kL = self.g_an(-4*np.log(self.kL/self.kJ0p5))
             g_kPE = self.g_an(-4*np.log(self.kPE/self.kJ0p5))[:,newaxis]
 
-            PL_cx = cosmo['PL']*g_kL + 1.e-5 # otherwist it becomez exactly zero, a problem for fastpt
-            PL_xx = cosmo['PL']*g_kL**2 + 1.e-5 # otherwist it becomez exactly zero, a problem for fastpt
+            PL_cx = cosmo['PL']*g_kL # otherwist it becomez exactly zero, a problem for fastpt
+            # PL_xx = cosmo['PL']*g_kL**2 + 1.e-5 # otherwist it becomez exactly zero, a problem for fastpt
             PL_cx[-2] = 1.e-5 #to please FASTpt
             PL_cx[-1] = 1.e-5 #to please FASTpt
+
+            loop22_cx_nw, loop22_cx_w = self.Pgg_kmu_terms_forchi(PL_cx, q, twotwo=True, cosmo=cosmo, redshift=cosmo['z'], kind=self.IRresum_kind)
+            # loop22_cx = interp1d(self.kL,self.fastpt.Pkmu_22_one_loop_terms(self.kL, PL_cx, C_window=.75))(q)
+            PL_xx = cosmo['PL']*g_kL**2
             PL_xx[-2] = 1.e-5 #to please FASTpt
             PL_xx[-1] = 1.e-5 #to please FASTpt
+            loop13_xx_nw, loop13_xx_w = self.Pgg_kmu_terms_forchi(PL_xx, q, twotwo=False, cosmo=cosmo, redshift=cosmo['z'], kind=self.IRresum_kind)
 
-            loop22_cx = interp1d(self.kL,self.fastpt.Pkmu_22_one_loop_terms(self.kL, PL_cx, C_window=.75))(q)
-            loop13_xx = interp1d(self.kL,self.fastpt.Pkmu_13_one_loop_terms(self.kL, PL_xx))(q)
-            ph0 = np.zeros_like(f * nu) # placeholder of 0 of correct shape
-            bias22_x = array([(b1 * bx * nu**0 * f**0 + 0.5 * bx**2 * g_kPE), bx * b2 * nu**0 * f**0, bx * bG2 * nu**0 * f**0,
-                            ph0, ph0, ph0,
-                            nu**2 * f * bx, ph0, ph0,
-                            (nu * f * b1)*(nu * f * bx), (nu * b1)*(nu * bx) * f,
-                            nu**2 * f * bx * b2, nu**2 * f * bx * bG2,
-                            (nu * f)**2 * bx, ph0,
-                            ph0, ph0, ph0,
-                            nu**4 * f**3 * bx, ph0,
-                            ph0, nu**4 * f**2 * bx,
-                            nu**4 * f**2 * b1*bx, ph0,
-                            ph0, ph0, nu**6 * f**3 * bx,
-                            ph0])
-
-            bias13_x = chiKaiser(b1, f, nu, bx) * bx * loop13_xx[0] # I only need to add the F3 term 
-
-            Pkmu_22 += einsum(repl, bias22_x, loop22_cx)
-            Pkmu_13 += bias13_x
+            bias22_x = array([(2*b1 * bx * nu**0 * f**0 + bx**2), bx * b2 * nu**0 * f**0, bx * bG2 * nu**0 * f**0,
+                        0. * nu**0 * f**0, 0. * bG2 * nu**0 * f**0, 0.**2 * nu**0 * f**0,
+                        nu**2 * f * bx, nu**2 * f * 0., nu**2 * f * 0.,
+                        (nu * f * bx)**2, (nu * bx)**2 * f,
+                        nu**2 * f * bx * b2, nu**2 * f * bx * bG2,
+                        (nu * f)**2 * bx, (nu * f)**2 * 0.,
+                        (nu * f)**2 * 0., 0.* (nu * f)**4, nu**4 * f**3,
+                        nu**4 * f**3 * bx, nu**4 * f**2 * 0.,
+                        nu**4 * f**2 * 0., nu**4 * f**2 * bx,
+                        nu**4 * f**2 * bx**2,0.* nu**4 * f**2,
+                        0.*nu**6 * f**4, 0.* nu**6 * f**3, nu**6 * f**3 * bx,
+                        0.* nu**8 * f**4])
+        
+            bias13_x = array([bx * chiKaiser(b1, f, nu, bx),
+                        0. * chiKaiser(b1, f, nu, bx),
+                        0. * chiKaiser(b1, f, nu, bx),
+                        0.* nu**2 * f * chiKaiser(b1, f, nu, bx),
+                        nu**2 * f * bx * chiKaiser(b1, f, nu, bx),
+                        0.* (nu * f)**2 * chiKaiser(b1, f, nu, bx),
+                        0.* nu**4 * f**2 * chiKaiser(b1, f, nu, bx)])
+            Pkmu_22 += einsum(repl, bias22_x, loop22_cx_nw + RSDdamp* loop22_cx_w)
+            Pkmu_13 += einsum(repl, bias13_x, loop13_xx_nw + RSDdamp* loop13_xx_w)
 
         # -----------------------------
 
@@ -1726,6 +1733,37 @@ class PBJtheory:
 
         return AP_ampl*Pell, AP_ampl*Pml
 
+
+    def Pgg_kmu_terms_forchi(self,Plx, q, twotwo, cosmo=None, redshift=0, kind='EH', do_AP=False,
+                       window_convolution=None):
+        """
+        Private method that computes the terms for the loop
+        corrections at redshift z=0, splits into wiggle and no-wiggle
+        and stores them as attributes of the class. It also sets
+        interpolators to be used when `self.do_AP == True`
+
+        Paramters
+        ---------
+        cosmo :  dictionary
+            If `None` uses the input cosmology
+        """
+        PL = Plx
+        cosmo['PL'] = PL
+
+        _, self.Pnw, self.Pw, self.Sigma2, self.dSigma2 = \
+            self.IRresum(redshift, kind, cosmo=cosmo)
+
+        if twotwo:
+            loop_L = self.fastpt.Pkmu_22_one_loop_terms(self.kL, PL, C_window=.75)
+            loop_nw = self.fastpt.Pkmu_22_one_loop_terms(self.kL, self.Pnw,
+                                                        C_window=.75)
+        else:
+            loop_L = self.fastpt.Pkmu_13_one_loop_terms(self.kL, PL)
+            loop_nw = self.fastpt.Pkmu_13_one_loop_terms(self.kL, self.Pnw)
+
+        # Compute wiggle
+        loop_w = array([i - j for i, j in zip(loop_L, loop_nw)])
+        return interp1d(self.kL,loop_nw)(q), interp1d(self.kL,loop_w)(q)
 #-------------------------------------------------------------------------------
 
     def P_kmu_z_marg_scaledep(self, redshift, do_redshift_rescaling, kgrid=None, f=None,
