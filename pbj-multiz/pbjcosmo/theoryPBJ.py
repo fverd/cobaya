@@ -1680,16 +1680,16 @@ class PBJtheory:
             PL_xx[-1] = 1.e-5 #to please FASTpt
             loop13_xx_nw, loop13_xx_w = self.Pgg_kmu_terms_forchi(PL_xx, q, twotwo=False, cosmo=cosmo, redshift=cosmo['z'], kind=self.IRresum_kind)
 
-            bias22_x = array([(2*b1 * bx * nu**0 * f**0 + bx**2), bx * b2 * nu**0 * f**0, bx * bG2 * nu**0 * f**0,
+            bias22_x = array([(2* b1 * bx * nu**0 * f**0 + bx**2), bx * b2 * nu**0 * f**0, bx * bG2 * nu**0 * f**0,
                         0. * nu**0 * f**0, 0. * bG2 * nu**0 * f**0, 0.**2 * nu**0 * f**0,
                         nu**2 * f * bx, nu**2 * f * 0., nu**2 * f * 0.,
-                        (nu * f * bx)**2, (nu * bx)**2 * f,
+                        (nu * f * bx)**2 + 2*(nu * f)**2 * b1*bx, (nu * bx)**2 * f + (nu)**2 *2*b1*bx * f,
                         nu**2 * f * bx * b2, nu**2 * f * bx * bG2,
                         (nu * f)**2 * bx, (nu * f)**2 * 0.,
                         (nu * f)**2 * 0., 0.* (nu * f)**4, nu**4 * f**3,
                         nu**4 * f**3 * bx, nu**4 * f**2 * 0.,
                         nu**4 * f**2 * 0., nu**4 * f**2 * bx,
-                        nu**4 * f**2 * bx**2,0.* nu**4 * f**2,
+                        nu**4 * f**2 * (2* b1 * bx + bx**2),0.* nu**4 * f**2,
                         0.*nu**6 * f**4, 0.* nu**6 * f**3, nu**6 * f**3 * bx,
                         0.* nu**8 * f**4])
         
