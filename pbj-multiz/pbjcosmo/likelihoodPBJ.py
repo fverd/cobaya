@@ -428,8 +428,9 @@ class PBJlikelihood:
                                              self.full_param_dict)
         
         # Regarding the background quantities, treat chi as CDM. Then will put by hand scale dep suppression of the growth rate
-        self.full_param_dict['Och2'] += self.full_param_dict['Ochih2']
         fx = self.full_param_dict['Ochih2']/(self.full_param_dict['Obh2']+self.full_param_dict['Och2']+self.full_param_dict['Ochih2'])
+
+        self.full_param_dict['Och2'] += self.full_param_dict['Ochih2']
 
         if self.do_AP:
             alpha_par =  self.Hubble_adim_fid / \
@@ -474,6 +475,8 @@ class PBJlikelihood:
                 previous_z = iz
             # print(zparams)
             # Then do the bias expansion
+            zparams['bx'] *= fx
+            
             Pell, Pell_marg = self.P_kmu_z_marg_scaledep_withchi(
                 iz, False, AP_as_nuisance=True,
                 cosmo=zparams, Psn=self.Psn[ii],
