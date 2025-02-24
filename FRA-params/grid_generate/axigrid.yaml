@@ -151,7 +151,7 @@ defaults:
     acs_chi: 1. #placeholder
 
     kJ0p5:
-      value: 'lambda h ,m_ax_eV: np.sqrt(3.336e-04 * h * m_ax_eV * 1.56e29)/h * (0.6666)**0.25'
+      value: 'lambda m_axion_eV, h: 8.4e12 * np.sqrt(m_axion_eV/h) * (0.6666)**0.25'
 
     h:
       prior:
