@@ -475,7 +475,6 @@ class PBJlikelihood:
                 previous_z = iz
             # print(zparams)
             # Then do the bias expansion
-            zparams['bx'] *= fx
             
             Pell, Pell_marg = self.P_kmu_z_marg_scaledep_withchi(
                 iz, False, AP_as_nuisance=True,
