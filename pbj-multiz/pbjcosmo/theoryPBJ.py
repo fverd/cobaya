@@ -1715,22 +1715,33 @@ class PBJtheory:
         Pell   = cosmology.multipole_projection(self.mu, Pkmu, [0,2,4])
 
         PG3ell = cosmology.multipole_projection(self.mu, Pkmu_bG3, [0,2,4])
-        Pc0    = cosmology.multipole_projection(self.mu, -2.* Pkmu_ctr, [0,2,4])
-        Pc2    = cosmology.multipole_projection(
-            self.mu, -2.* f * nu**2 * Pkmu_ctr, [0,2,4])
-        Pc4    = cosmology.multipole_projection(
-            self.mu, -2.* f**2 * nu**4 * Pkmu_ctr, [0,2,4])
+        # Pc0    = cosmology.multipole_projection(self.mu, -2.* Pkmu_ctr, [0,2,4])
+        # Pc2    = cosmology.multipole_projection(
+        #     self.mu, -2.* f * nu**2 * Pkmu_ctr, [0,2,4])
+        # Pc4    = cosmology.multipole_projection(
+        #     self.mu, -2.* f**2 * nu**4 * Pkmu_ctr, [0,2,4])
+
+        # Define them as for CLASS-PT, i.e. each counterterm is for the multipole
+        PL_ctr = cosmology.multipole_projection(self.mu, Pkmu_ctr, [0,2,4])[0] # the other multipoles are basically zero
+        Pc0    = np.zeros((3, PL_ctr.shape[0]))
+        Pc0[0]    = -2*PL_ctr
+
+        Pc2    = np.zeros((3, PL_ctr.shape[0]))
+        Pc2[1]    = -2*PL_ctr
+
+        Pc4    = np.zeros((3, PL_ctr.shape[0]))
+        Pc4[2]    = -2*PL_ctr
+
         Pck4   = cosmology.multipole_projection(
             self.mu,
             f**4 * nu**4 * chiKaiser(b1, f, nu, bx)**2 * q**2 *Pkmu_ctr,
             [0,2,4])
 
         Pa = cosmology.multipole_projection(self.mu, np.full(q.shape, Psn), [0,2,4])
-        Pe0k2  = cosmology.multipole_projection(self.mu, Psn*q**2, [0,2,4])
+        Pe0k2  = cosmology.multipole_projection(self.mu, Psn*(q/0.45)**2, [0,2,4])
         Pe2k2  = cosmology.multipole_projection(
-            self.mu, Psn*q**2 * nu**2, [0,2,4])
+            self.mu, Psn*(q/0.45)**2 * nu**2, [0,2,4])
         Pml = concatenate((PG3ell, Pc0, Pc2, Pc4, Pck4, Pa, Pe0k2, Pe2k2))
-
         return AP_ampl*Pell, AP_ampl*Pml
 
 
